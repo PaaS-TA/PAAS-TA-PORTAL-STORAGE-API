@@ -1,4 +1,4 @@
-package org.openpaas.paasta.portal.api.config.service;
+package org.openpaas.paasta.portal.Storage.api.config.service;
 
 import org.javaswift.joss.client.factory.AccountConfig;
 import org.javaswift.joss.client.factory.AccountFactory;
