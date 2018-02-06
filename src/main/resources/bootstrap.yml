@@ -6,7 +6,7 @@ spring:
       uri: http://localhost:8004
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:2226}
 
 
 # Discovery Server Access
