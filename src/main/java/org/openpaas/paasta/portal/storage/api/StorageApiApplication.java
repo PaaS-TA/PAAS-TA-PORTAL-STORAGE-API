@@ -12,7 +12,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @author Paul Chapman
  */
 @SpringBootApplication
-@EnableDiscoveryClient
+//@EnableDiscoveryClient
 @ComponentScan(basePackages = {"org.openpaas.paasta.portal.storage.api"})
 public class StorageApiApplication {
 
