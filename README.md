@@ -1,8 +1,5 @@
 # PAAS-TA-PORTAL-STORAGE-API
 
-## 버전 정보
-Portal v2.0의 Sprint1의 개발중인 버전이다.
-
 ## Storage Api Service
 Storage Api Service? Object Storage에 파일 업로드 및 다운로드를 제공하는 기능을 제공하기 위해
 별도의 API 서비스로 분리하여, 개발된 서비스이다.
