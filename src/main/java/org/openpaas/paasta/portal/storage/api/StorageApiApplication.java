@@ -7,24 +7,23 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
- * All you need to run a Eureka registration server.
+ * PaaS-TA Storage API application. 
+ * (org.openpaas.paasta.portal.storage.api)
  * 
- * @author Paul Chapman
+ * @author hgcho (Hyungu Cho)
+ * @version 
+ * @since 2018. 4. 2.
+ *
  */
 @SpringBootApplication
 //@EnableDiscoveryClient
 @ComponentScan(basePackages = {"org.openpaas.paasta.portal.storage.api"})
 public class StorageApiApplication {
-
-	/**
-	 * Run the application using Spring Boot and an embedded servlet engine.
-	 * 
-	 * @param args
-	 *            Program arguments - ignored.
-	 */
+    /**
+     * Storage API entry point.
+     * @param args
+     */
 	public static void main(String[] args) {
-		// Tell server to look for registration.properties or registration.yml
-
 		SpringApplication.run(StorageApiApplication.class, args);
 	}
 
