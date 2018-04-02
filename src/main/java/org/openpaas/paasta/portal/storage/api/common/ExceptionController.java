@@ -34,6 +34,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExceptionController {
     @Value( "${paasta.portal.storage.api.common.countoflastestexception:10}" )
     private int countOfLastestExceptions;
+    
+    private static final String EXCEPTION_MESSAGE_HEADER = "Occured unexpected exception...";
 
     @Autowired 
     private ExceptionService exceptionService;
@@ -47,16 +49,22 @@ public class ExceptionController {
 
     @ResponseStatus( HttpStatus.INTERNAL_SERVER_ERROR )
     @ExceptionHandler( Throwable.class )
-    public void handleException( final HttpServletRequest request, final Throwable ex ) {
+    public String handleException( final HttpServletRequest request, final Throwable ex ) {
         if ( lastExceptions.size() >= countOfLastestExceptions )
             lastExceptions.removeLast();
         
-        lastExceptions.push( ExceptionInfo.get( ex ) );
-        exceptionService.log( "Occured unexpected exception...", ex );
+        final ExceptionInfo exInfo = ExceptionInfo.get( ex );
+        lastExceptions.push( exInfo );
+        exceptionService.log( EXCEPTION_MESSAGE_HEADER, ex );
 
         // debugging info
         exceptionService.log( Level.DEBUG, "remote host: {}({}) / remote port: {}", 
             request.getRemoteHost(), request.getRemoteAddr(), request.getRemotePort());
+        
+        final StringBuilder sb = new StringBuilder(EXCEPTION_MESSAGE_HEADER);
+        sb.append( '\n' ).append( exInfo.getStackTraceString() ).append( '\n' );
+        
+        return sb.toString();
     }
     
     @GetMapping( "/errors" )

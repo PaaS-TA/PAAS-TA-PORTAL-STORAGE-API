@@ -1,6 +1,10 @@
 spring:
   application:
       name: PortalStorageApi
+  http:
+    multipart:
+      maxFileSize: 1000MB
+      maxRequestSize: 1000MB
   cloud:
     config:
       uri: http://localhost:8004
@@ -18,11 +22,11 @@ eureka:
 
 # Object Storage Example
 objectStorage:
-  tenantName: localhost-test
-  username: administrator
-  password: "@dm!n1to34"
-  authUrl: http://localhost:9999/
-  container: localhost-container
+  tenantName: OBJECT-STORAGE-TENANT-NAME
+  username: OBJECT-STORAGE-USER-NAME
+  password: OBJECT-STORAGE-PASSWORD
+  container: OBJECT-STORAGE-CONTAINER
+  authUrl: OBJECT-STORAGE-AUTH-URL
 
 # Related handling exception
 paasta:
