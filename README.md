@@ -9,7 +9,7 @@ Storage Api Service? Object Storage에 파일 업로드 및 다운로드를 제�
 ### Swift Object Storage
 - Base Request URL : http://[STORAGE-API-HOST]:[STORAGE-API-PORT]/v2/swift
  - Request Method
-   - PUT (File upload, multipart)
+   - POST (File upload, multipart)
      - URI : http://[STORAGE-API-HOST]:[STORAGE-API-PORT]/v2/swift
 	 - Response : Stored file name
    - GET (File download)
