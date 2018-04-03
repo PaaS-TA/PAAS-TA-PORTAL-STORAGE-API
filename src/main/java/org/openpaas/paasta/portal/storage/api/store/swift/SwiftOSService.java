@@ -138,7 +138,6 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         
         return urlList;
     }
-    
 
     protected final String generateStoredFilename( final String filename ) {
         final String uuid = UUID.randomUUID().toString().replaceAll( "-", "" );
