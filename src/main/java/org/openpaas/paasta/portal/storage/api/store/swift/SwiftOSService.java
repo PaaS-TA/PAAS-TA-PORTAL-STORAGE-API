@@ -12,8 +12,8 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ControllerParameter;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.store.ObjectStorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +43,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         final StoredObject object = container.getObject( storedFilename );
         LOGGER.debug( "StoredObject : {}", object );
         object.setContentType( multipartFile.getContentType() );
-        object.setAndSaveMetadata( ControllerParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
+        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
         object.uploadObject( multipartFile.getInputStream() );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
@@ -70,7 +70,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         final StoredObject object = container.getObject( storedFilename );
         LOGGER.debug( "StoredObject : {}", object );
         object.setContentType( contentType );
-        object.setAndSaveMetadata( ControllerParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
+        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
         object.uploadObject( content );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
@@ -122,7 +122,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     @Override
     public boolean removeObject( final String filename ) {
         final StoredObject object = container.getObject( filename );
-        LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( ControllerParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
+        LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
         
         if (object.exists())
             object.delete();

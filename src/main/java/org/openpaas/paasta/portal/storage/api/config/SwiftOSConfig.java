@@ -5,8 +5,7 @@ import org.javaswift.joss.client.factory.AccountFactory;
 import org.javaswift.joss.client.factory.AuthenticationMethod;
 import org.javaswift.joss.model.Account;
 import org.javaswift.joss.model.Container;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.EnvironmentKeys;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSEnvironmentKeys;
 import org.openpaas.paasta.portal.storage.api.util.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,12 +40,12 @@ public class SwiftOSConfig extends ObjectStorageConfig {
      */
     @Bean
     public AccountConfig accountConfig(){
-        final String tenantName = env.getRequiredProperty(EnvironmentKeys.OBJECT_STORAGE_TENANT_NAME);
-        final String username = env.getRequiredProperty(EnvironmentKeys.OBJECT_STORAGE_USER_NAME);
-        final String password = env.getRequiredProperty(EnvironmentKeys.OBJECT_STORAGE_PASSWORD);
-        final String authUrl = env.getRequiredProperty(EnvironmentKeys.OBJECT_STORAGE_AUTH_URL);
-        final String authMethod = env.getRequiredProperty( EnvironmentKeys.OBJECT_STORAGE_AUTH_METHOD );
-        final String preferredRegion = env.getRequiredProperty( EnvironmentKeys.OBJECT_STORAGE_PREFERRED_REGION );
+        final String tenantName = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_TENANT_NAME);
+        final String username = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_USER_NAME);
+        final String password = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_PASSWORD);
+        final String authUrl = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_AUTH_URL);
+        final String authMethod = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_AUTH_METHOD );
+        final String preferredRegion = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_PREFERRED_REGION );
 
         accountConfig = new AccountConfig();
         accountConfig.setTenantName(tenantName);
@@ -146,7 +145,7 @@ public class SwiftOSConfig extends ObjectStorageConfig {
      */
     @Bean
     public Container container(Account account){
-        final String containerName = env.getRequiredProperty(EnvironmentKeys.OBJECT_STORAGE_CONTAINER);
+        final String containerName = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_CONTAINER);
         final Container container = account.getContainer(containerName);
         if(!container.exists()){
             container.create();

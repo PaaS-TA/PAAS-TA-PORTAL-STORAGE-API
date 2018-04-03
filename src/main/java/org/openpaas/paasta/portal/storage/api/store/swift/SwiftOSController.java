@@ -9,9 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.javaswift.joss.model.StoredObject;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ControllerParameter;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ControllerURI;
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSControllerURI;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -36,9 +36,9 @@ public class SwiftOSController {
      * Put object into Object Storage (upload, POST)
      * @throws IOException 
      */
-    @PostMapping( ControllerURI.OBJECT_INSERT_URI )
+    @PostMapping( SwiftOSControllerURI.OBJECT_INSERT_URI )
     public SwiftOSFileInfo uploadObject(
-        @RequestParam( ControllerParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
+        @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
         final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile );
         
         return fileInfo;
@@ -48,8 +48,8 @@ public class SwiftOSController {
      * Get object in object storage (get, GET)
      * @throws FileNotFoundException 
      */
-    @GetMapping( ControllerURI.OBJECT_GET_URI )
-    public String getObjectURL( @PathVariable( ControllerParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, 
+    @GetMapping( SwiftOSControllerURI.OBJECT_GET_URI )
+    public String getObjectURL( @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, 
         final HttpServletRequest request, final HttpServletResponse response ) throws FileNotFoundException {
         final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
 
@@ -59,7 +59,7 @@ public class SwiftOSController {
     /**
      * Update object in object storage (update, PUT)
      */
-    @PutMapping( ControllerURI.OBJECT_MODIFY_URI )
+    @PutMapping( SwiftOSControllerURI.OBJECT_MODIFY_URI )
     public StoredObject updateObject( String filename, StoredObject object ) {
         throw new UnsupportedOperationException("Updating object doesn't support yet.");
     }
@@ -67,7 +67,7 @@ public class SwiftOSController {
     /**
      * Remove object in object storage (remove/delete, DELETE)
      */
-    @DeleteMapping( ControllerURI.OBJECT_DELETE_URI )
+    @DeleteMapping( SwiftOSControllerURI.OBJECT_DELETE_URI )
     public String removeObject( String filename ) {
         if (swiftOSService.removeObject( filename ))
             return ResultStatus.SUCCESS.name();
@@ -75,7 +75,7 @@ public class SwiftOSController {
             return ResultStatus.FAIL.name();
     }
     
-    @GetMapping( ControllerURI.OBJECT_LIST_URI )
+    @GetMapping( SwiftOSControllerURI.OBJECT_LIST_URI )
     public String listFiles( ) {
         final StringBuffer buffer = new StringBuffer();
         final List<String> files = swiftOSService.listFileURLs();

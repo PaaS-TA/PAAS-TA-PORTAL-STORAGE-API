@@ -1,6 +1,6 @@
 package org.openpaas.paasta.portal.storage.api.store;
 
-import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
 
 /**
  * 
@@ -9,13 +9,17 @@ import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ResultStat
  * @since 2018. 4. 2.
  *
  */
-public abstract class ObjectStorageFileInfo {
+public abstract class ObjectStorageFileInfo<T> {
     protected String filename;
     protected String storedFilename;
     protected String fileURL;
     protected String fileType;
     protected long length;
     protected ResultStatus resultStatus;
+    
+    public static <T> T newInstance() {
+        return null;
+    }
 
     public String getFilename() {
         return filename;
@@ -63,5 +67,15 @@ public abstract class ObjectStorageFileInfo {
 
     public void setResultStatus( ResultStatus resultStatus ) {
         this.resultStatus = resultStatus;
+    }
+    
+    @Override
+    public String toString() {
+        final StringBuffer buffer = new StringBuffer();
+        buffer.append( getClass().getSimpleName() ).append( '@' ).append( Integer.toHexString( this.hashCode() ) );
+        if (null != this.filename)
+            buffer.append( ':' ).append( this.filename );
+        
+        return buffer.toString();
     }
 }
