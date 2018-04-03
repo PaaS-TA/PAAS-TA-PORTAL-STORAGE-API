@@ -36,6 +36,7 @@ public abstract class ObjectStorageService<T> {
     
     /**
      * Remove object in object storage (remove/delete, DELETE)
+     * @return 
      */
-    public abstract void removeObject(String storedFilename);
+    public abstract boolean removeObject(String storedFilename);
 }

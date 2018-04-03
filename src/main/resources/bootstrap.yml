@@ -22,11 +22,14 @@ eureka:
 
 # Object Storage Example
 objectStorage:
-  tenantName: OBJECT-STORAGE-TENANT-NAME
-  username: OBJECT-STORAGE-USER-NAME
-  password: OBJECT-STORAGE-PASSWORD
-  container: OBJECT-STORAGE-CONTAINER
-  authUrl: OBJECT-STORAGE-AUTH-URL
+  swift: 
+    tenantName: OBJECT-STORAGE-TENANT-NAME
+    username: OBJECT-STORAGE-USER-NAME
+    password: OBJECT-STORAGE-PASSWORD
+    container: OBJECT-STORAGE-CONTAINER
+    authMethod: OBJECT-STORAGE-AUTH-METHOD
+    authUrl: OBJECT-STORAGE-AUTH-URL
+    preferredRegion: OBJECT-STORAGE-PREFERRED-REGION
 
 # Related handling exception
 paasta:
