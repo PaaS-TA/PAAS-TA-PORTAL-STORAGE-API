@@ -14,7 +14,7 @@ public class SwiftOSConstants {
     }
     
     /**
-     * Environment keys for object storage
+     * Environment keys for Swift Object Storage
      * @author hgcho (Hyungu Cho)
      * @version 
      * @since 2018. 4. 2.
@@ -29,8 +29,12 @@ public class SwiftOSConstants {
         public static final String OBJECT_STORAGE_PASSWORD = "objectStorage.password";
         /** Authentication URL of object storage */
         public static final String OBJECT_STORAGE_AUTH_URL = "objectStorage.authUrl";
+        /** Authentication Method of object storage */
+        public static final String OBJECT_STORAGE_AUTH_METHOD = "objectStorage.authMethod";
         /** Container of object storage */
         public static final String OBJECT_STORAGE_CONTAINER = "objectStorage.container";
+        /** Preferred region of object storage */
+        public static final String OBJECT_STORAGE_PREFERRED_REGION = "objectStorage.preferredRegion";
     }
     
     /**
@@ -54,6 +58,9 @@ public class SwiftOSConstants {
         
         /** Delete object in object storage (DELETE) */
         public static final String OBJECT_DELETE_URI = "/{name}";
+        
+        /** List objects in object storage (GET) */
+        public static final String OBJECT_LIST_URI = "/list";
     }
     
     public static class ControllerParameter {

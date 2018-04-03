@@ -2,6 +2,8 @@ package org.openpaas.paasta.portal.storage.api.store.swift;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -9,6 +11,7 @@ import org.apache.catalina.servlet4preview.http.HttpServletRequest;
 import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ControllerParameter;
 import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ControllerURI;
+import org.openpaas.paasta.portal.storage.api.common.SwiftOSConstants.ResultStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,8 +68,34 @@ public class SwiftOSController {
      * Remove object in object storage (remove/delete, DELETE)
      */
     @DeleteMapping( ControllerURI.OBJECT_DELETE_URI )
-    public void removeObject( String filename ) {
+    public String removeObject( String filename ) {
+        if (swiftOSService.removeObject( filename ))
+            return ResultStatus.SUCCESS.name();
+        else
+            return ResultStatus.FAIL.name();
+    }
+    
+    @GetMapping( ControllerURI.OBJECT_LIST_URI )
+    public String listFiles( ) {
+        final StringBuffer buffer = new StringBuffer();
+        final List<String> files = swiftOSService.listFileURLs();
         
+        for (final String file : files) {
+            buffer.append( "<p>" )
+            .append( file )
+            .append( "</p>" );
+        }
+        
+        return buffer.toString();
     }
 
+    @GetMapping( "/upload-test/{local-file}")
+    public SwiftOSFileInfo uploadTestObject(@PathVariable("local-file") String localFilePath) {
+        //final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile )
+        
+        InputStream is = getClass().getResourceAsStream( localFilePath );
+        final SwiftOSFileInfo fileInfo = swiftOSService.putObject( localFilePath, is, "application/octet-stream" );
+        
+        return fileInfo;
+    }
 }

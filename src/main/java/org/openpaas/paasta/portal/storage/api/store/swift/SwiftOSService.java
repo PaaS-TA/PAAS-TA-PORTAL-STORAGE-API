@@ -2,6 +2,10 @@ package org.openpaas.paasta.portal.storage.api.store.swift;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -41,6 +45,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         object.setContentType( multipartFile.getContentType() );
         object.setAndSaveMetadata( ControllerParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
         object.uploadObject( multipartFile.getInputStream() );
+        LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
         /*
         // setting manually
@@ -57,6 +62,45 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
         
         return fileInfo;
+    }
+    
+    public SwiftOSFileInfo putObject( final String filename, final InputStream content, final String contentType ) {
+        final String storedFilename = generateStoredFilename( filename );
+        
+        final StoredObject object = container.getObject( storedFilename );
+        LOGGER.debug( "StoredObject : {}", object );
+        object.setContentType( contentType );
+        object.setAndSaveMetadata( ControllerParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
+        object.uploadObject( content );
+        LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
+        
+        final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
+        LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
+        
+        return fileInfo;
+    }
+    
+    protected final String generateStoredFilename( final String filename ) {
+        final String uuid = UUID.randomUUID().toString().replaceAll( "-", "" );
+        final String baseName = filename.substring( 0, filename.lastIndexOf( '.' ) );
+        final String extension = filename.substring( filename.lastIndexOf( '.' ) + 1, filename.length() );
+        
+        return (uuid + '-' + baseName + '-' + extension);
+    }
+    
+    protected final String getOriginalFilename( final String storedFilename) {
+        if ( !storedFilename.contains( "-" ) )
+            return storedFilename;
+        
+        final int firstIndex = storedFilename.indexOf( '-' ) + 1;
+        final int middleIndex = storedFilename.lastIndexOf( '-' );
+        final int lastIndex = storedFilename.length();
+        final StringBuffer buffer = new StringBuffer();
+        buffer.append( storedFilename.substring( firstIndex, middleIndex ) )
+        .append( '.' )
+        .append( storedFilename.substring( middleIndex + 1, lastIndex) ); 
+        
+        return buffer.toString();
     }
 
     @Override
@@ -76,7 +120,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     }
 
     @Override
-    public void removeObject( final String filename ) {
+    public boolean removeObject( final String filename ) {
         final StoredObject object = container.getObject( filename );
         LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( ControllerParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
         
@@ -84,8 +128,22 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
             object.delete();
         
         // after delete...
-        if (object.exists())
-            throw new IllegalStateException( "File(" + filename + ") can't delete..." );
+        if (object.exists()) {
+            Exception ex = new IllegalStateException( "File(" + filename + ") can't delete..." );
+            LOGGER.error( "Cannot delete...", ex );
+            
+            return false;
+        }
+        
+        return true;
     }
 
+    public List<String> listFileURLs() {
+        final Collection<StoredObject> list = container.list();
+        final List<String> urlList = new ArrayList<>();
+        for (StoredObject object : list)
+            urlList.add( object.getName() + "( " + object.getPublicURL() + " )" );
+        
+        return urlList;
+    }
 }
