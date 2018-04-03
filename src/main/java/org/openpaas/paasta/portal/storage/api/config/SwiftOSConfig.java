@@ -31,8 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class SwiftOSConfig extends ObjectStorageConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger( SwiftOSConfig.class );
     
-    private AccountConfig accountConfig = null;
-    
     /**
      * <p>Create AccountConfig instance for Swift Object Storage. <br>
      * Configurations related to Swift read from spring boot config file.</p>
@@ -47,7 +45,7 @@ public class SwiftOSConfig extends ObjectStorageConfig {
         final String authMethod = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_AUTH_METHOD );
         final String preferredRegion = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_PREFERRED_REGION );
 
-        accountConfig = new AccountConfig();
+        AccountConfig accountConfig = new AccountConfig();
         accountConfig.setTenantName(tenantName);
         accountConfig.setUsername(username);
         accountConfig.setPassword(password);
@@ -149,7 +147,11 @@ public class SwiftOSConfig extends ObjectStorageConfig {
         final Container container = account.getContainer(containerName);
         if(!container.exists()){
             container.create();
+            // TODO If administrator wants to make private container...?
             container.makePublic();
+            LOGGER.debug( "Container {} is created in Object Storage.", containerName );
+        } else {
+            LOGGER.debug( "Container {} exists already in Object Storage.", containerName );
         }
         
         return container;

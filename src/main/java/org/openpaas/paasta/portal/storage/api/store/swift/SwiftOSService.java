@@ -25,9 +25,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     private static final Logger LOGGER = LoggerFactory.getLogger( SwiftOSService.class );
     
+    @Autowired
     private final Container container;
     
-    @Autowired
     public SwiftOSService(Container container) {
         this.container = container;
     }
@@ -35,17 +35,21 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     @Override
     public SwiftOSFileInfo putObject( final MultipartFile multipartFile ) throws IOException {
         final String filename = multipartFile.getOriginalFilename();
-        final String storedFilename = ( UUID.randomUUID().toString().replaceAll( "-", "" )
-            + '-' + filename.substring(filename.lastIndexOf('.')) );
+        final String storedFilename = generateStoredFilename( filename );
         LOGGER.debug( "transferring filename : {}", filename );
         LOGGER.debug( "storing filename into object storage : {}", storedFilename );
         
+        // create StoredObject instance
         final StoredObject object = container.getObject( storedFilename );
         LOGGER.debug( "StoredObject : {}", object );
-        object.setContentType( multipartFile.getContentType() );
-        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
+        
+        // upload object
         object.uploadObject( multipartFile.getInputStream() );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
+        
+        // after it uploads object, it sets content type and additional metadata in object storage
+        object.setContentType( multipartFile.getContentType() );
+        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
         
         /*
         // setting manually
@@ -67,51 +71,39 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     public SwiftOSFileInfo putObject( final String filename, final InputStream content, final String contentType ) {
         final String storedFilename = generateStoredFilename( filename );
         
+        // create StoredObject instance
         final StoredObject object = container.getObject( storedFilename );
         LOGGER.debug( "StoredObject : {}", object );
-        object.setContentType( contentType );
-        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
+        
+        // upload object
         object.uploadObject( content );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
+        // after it uploads object, it sets content type and additional metadata in object storage
+        object.setContentType( contentType );
+        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
+        
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
         
         return fileInfo;
     }
     
-    protected final String generateStoredFilename( final String filename ) {
-        final String uuid = UUID.randomUUID().toString().replaceAll( "-", "" );
-        final String baseName = filename.substring( 0, filename.lastIndexOf( '.' ) );
-        final String extension = filename.substring( filename.lastIndexOf( '.' ) + 1, filename.length() );
-        
-        return (uuid + '-' + baseName + '-' + extension);
-    }
-    
-    protected final String getOriginalFilename( final String storedFilename) {
-        if ( !storedFilename.contains( "-" ) )
-            return storedFilename;
-        
-        final int firstIndex = storedFilename.indexOf( '-' ) + 1;
-        final int middleIndex = storedFilename.lastIndexOf( '-' );
-        final int lastIndex = storedFilename.length();
-        final StringBuffer buffer = new StringBuffer();
-        buffer.append( storedFilename.substring( firstIndex, middleIndex ) )
-        .append( '.' )
-        .append( storedFilename.substring( middleIndex + 1, lastIndex) ); 
-        
-        return buffer.toString();
-    }
-
     @Override
     public SwiftOSFileInfo getObject( final String filename ) throws FileNotFoundException {
-        final StoredObject object = container.getObject( filename );
-        if (object.exists())
-            throw new FileNotFoundException( "\"" + filename + "\" is not found in object storage." );
+        final StoredObject object = getRawObject( filename );
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
         
         return fileInfo;
+    }
+    
+    public StoredObject getRawObject( final String filename ) throws FileNotFoundException {
+        final StoredObject object = container.getObject( filename );
+        if (false == object.exists())
+            throw new FileNotFoundException( "\"" + filename + "\" is not found in object storage." );
+        
+        return object;
     }
 
     @Override
@@ -124,11 +116,11 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         final StoredObject object = container.getObject( filename );
         LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
         
-        if (object.exists())
+        if (true == object.exists())
             object.delete();
         
         // after delete...
-        if (object.exists()) {
+        if (true == object.exists()) {
             Exception ex = new IllegalStateException( "File(" + filename + ") can't delete..." );
             LOGGER.error( "Cannot delete...", ex );
             
@@ -137,7 +129,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         
         return true;
     }
-
+    
     public List<String> listFileURLs() {
         final Collection<StoredObject> list = container.list();
         final List<String> urlList = new ArrayList<>();
@@ -145,5 +137,19 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
             urlList.add( object.getName() + "( " + object.getPublicURL() + " )" );
         
         return urlList;
+    }
+    
+
+    protected final String generateStoredFilename( final String filename ) {
+        final String uuid = UUID.randomUUID().toString().replaceAll( "-", "" );
+        final String baseName = filename.substring( 0, filename.lastIndexOf( '.' ) );
+        final String extension = filename.substring( filename.lastIndexOf( '.' ) + 1, filename.length() );
+        
+        return (uuid + '-' + baseName + '-' + extension);
+    }
+    
+    protected final String getOriginalFilename( final String storedFilename ) {
+        // recycle method
+        return SwiftOSFileInfo.getOriginalFilename( storedFilename );
     }
 }

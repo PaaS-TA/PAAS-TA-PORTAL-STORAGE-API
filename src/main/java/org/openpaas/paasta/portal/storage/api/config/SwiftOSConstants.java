@@ -53,22 +53,28 @@ public class SwiftOSConstants {
      */
     public static class SwiftOSControllerURI {
         /** Object storage root URI */
-        public static final String OBJECT_STORAGE_URI = "/v2/swift";
+        public static final String OBJECT_STORAGE_ROOT_URI = "/v2/swift";
         
         /** Get object in object storage (GET) */
-        public static final String OBJECT_GET_URI = OBJECT_STORAGE_URI + "/{name}";
+        public static final String OBJECT_GET_RESOURCE_URI = OBJECT_STORAGE_ROOT_URI + "/{name}";
+        
+        /** Get object in object storage (GET) */
+        public static final String OBJECT_GET_RAW_URI = OBJECT_STORAGE_ROOT_URI + "/{name}/raw-url";
         
         /** Insert(Register) object in object storage (POST) */
-        public static final String OBJECT_INSERT_URI = OBJECT_STORAGE_URI + "/";
+        public static final String OBJECT_INSERT_URI = OBJECT_STORAGE_ROOT_URI + "/";
         
         /** Modify object in object storage (PUT) -- Unsupported Operation */
-        public static final String OBJECT_MODIFY_URI = OBJECT_STORAGE_URI + "/{name}";
+        public static final String OBJECT_MODIFY_URI = OBJECT_STORAGE_ROOT_URI + "/{name}";
         
         /** Delete object in object storage (DELETE) */
-        public static final String OBJECT_DELETE_URI = OBJECT_STORAGE_URI + "/{name}";
+        public static final String OBJECT_DELETE_URI = OBJECT_STORAGE_ROOT_URI + "/{name}";
         
         /** List objects in object storage (GET) */
-        public static final String OBJECT_LIST_URI = OBJECT_STORAGE_URI + "/list";
+        public static final String OBJECT_LIST_URI = OBJECT_STORAGE_ROOT_URI + "/list";
+        
+        /** Upload test using local file */
+        protected static final String OBJECT_PUT_TEST_URI = OBJECT_STORAGE_ROOT_URI + "/upload-test/{local-file}";
     }
     
     public static class SwiftOSCommonParameter {
