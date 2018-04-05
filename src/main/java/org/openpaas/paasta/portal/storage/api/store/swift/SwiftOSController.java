@@ -76,27 +76,14 @@ public class SwiftOSController {
     public void getObjectDownload( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response )
             throws IOException {
-        /*
-        // first way
-        final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
-        ResponseEntity<byte[]> objectStorageEntity = restTemplate.getForEntity( URI.create( fileInfo.getFileURL() ), byte[].class );
-        
-        response.addHeader( "Content-disposition", ( "attachment;filename=" + name ) );
-        response.setContentType( fileInfo.getFileType() );
-        LOGGER.debug( "Header : {}", response.getHeader( "Content-disposition" ) );
-        LOGGER.debug( "Content-Type : {}", fileInfo.getFileType() );
-        
-        final ByteArrayInputStream bais = new ByteArrayInputStream( objectStorageEntity.getBody() );
-        IOUtils.copy( bais, response.getOutputStream() );
-        response.flushBuffer();
-        */
-        
-        // second way
         final StoredObject object = swiftOSService.getRawObject( name );
         byte[] rawContents = object.downloadObject();
-        response.addHeader( "Content-disposition", ( "attachment;filename=" + name ) );
+        // set header of binary object
+        response.setHeader( "Content-Disposition", ( "attachment;filename=" + name ) );
+        response.setHeader( "Content-Transfer-Encoding", "binary" );
         response.setContentType( object.getContentType() );
-        LOGGER.debug( "Header : {}", response.getHeader( "Content-disposition" ) );
+        LOGGER.debug( "Header {} : {}", "Content-Disposition", response.getHeader( "Content-Disposition"  ) );
+        LOGGER.debug( "Header {} : {}", "Content-Transfer-Encoding", response.getHeader( "Content-Transfer-Encoding" ) );
         LOGGER.debug( "Content-Type : {}", object.getContentType() );
         
         response.getOutputStream().write( rawContents );
