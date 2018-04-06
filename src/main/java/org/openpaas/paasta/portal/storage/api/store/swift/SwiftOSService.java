@@ -12,6 +12,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConfig;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.store.ObjectStorageService;
@@ -19,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 import org.springframework.web.multipart.MultipartFile;
 
 @Service
@@ -34,6 +36,8 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     
     @Override
     public SwiftOSFileInfo putObject( final MultipartFile multipartFile ) throws IOException {
+        Assert.notNull( multipartFile, "MultipartFile instance is empty : " + multipartFile );
+        
         final String filename = multipartFile.getOriginalFilename();
         final String storedFilename = generateStoredFilename( filename );
         LOGGER.debug( "transferring filename : {}", filename );
@@ -51,17 +55,6 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         object.setContentType( multipartFile.getContentType() );
         object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
         
-        /*
-        // setting manually
-        final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstance();
-        fileInfo.setFilename( filename );
-        fileInfo.setFileType( multipartFile.getContentType() );
-        fileInfo.setStoredFilename( storedFilename );
-        fileInfo.setLength( object.getContentLength() );
-        fileInfo.setFileURL( object.getPublicURL() );
-        fileInfo.setResultStatus( ResultStatus.SUCCESS );
-        */
-        
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
         
@@ -69,9 +62,12 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     }
     
     public SwiftOSFileInfo putObject( final String filename, final InputStream content, final String contentType ) {
-        final String storedFilename = generateStoredFilename( filename );
+        Assert.notNull( filename, "Filename instance is empty : " + filename );
+        Assert.notNull( content, "InputStream content instance is empty : " + content );
+        Assert.notNull( contentType, "Content type instance is empty : " + contentType );
         
         // create StoredObject instance
+        final String storedFilename = generateStoredFilename( filename );
         final StoredObject object = container.getObject( storedFilename );
         LOGGER.debug( "StoredObject : {}", object );
         
@@ -79,7 +75,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         object.uploadObject( content );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
-        // after it uploads object, it sets content type and additional metadata in object storage
+        // after its service uploads object(content), it sets content type and additional metadata in object storage
         object.setContentType( contentType );
         object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
         
@@ -91,6 +87,8 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     
     @Override
     public SwiftOSFileInfo getObject( final String filename ) throws FileNotFoundException {
+        Assert.notNull( filename, "Filename instance is empty : " + filename );
+        
         final StoredObject object = getRawObject( filename );
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
@@ -98,12 +96,14 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         return fileInfo;
     }
     
-    public StoredObject getRawObject( final String filename ) throws FileNotFoundException {
-        final StoredObject object = container.getObject( filename );
-        if (false == object.exists())
-            throw new FileNotFoundException( "\"" + filename + "\" is not found in object storage." );
+    public StoredObject getRawObject( final String filename ) {
+        Assert.notNull( filename, "Filename instance is empty : " + filename );
         
-        return object;
+        final StoredObject object = container.getObject( filename );
+        if (false == object.exists()) 
+            return null;
+        else
+            return object;
     }
 
     @Override
@@ -113,9 +113,16 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
 
     @Override
     public boolean removeObject( final String filename ) {
-        final StoredObject object = container.getObject( filename );
-        LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
+        Assert.notNull( filename, "Filename instance is empty : " + filename );
         
+        // reload before delete object
+        container.reload();
+        
+        final StoredObject object = container.getObject( filename );
+        Assert.notNull( object, "StoredObject instance is empty : " + object );
+        
+        LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
+        //LOGGER.debug( "Delete object : {}", object.getName() );
         if (true == object.exists())
             object.delete();
         
@@ -132,22 +139,29 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     
     public List<String> listFileURLs() {
         final Collection<StoredObject> list = container.list();
+        Assert.notNull( list, "StoredObject list is empty : " + list );
+        
         final List<String> urlList = new ArrayList<>();
         for (StoredObject object : list)
-            urlList.add( object.getName() + "( " + object.getPublicURL() + " )" );
+            urlList.add( object.getName() + " ( <a>" + object.getPublicURL() + "</a> )" );
         
         return urlList;
     }
 
     protected final String generateStoredFilename( final String filename ) {
-        final String uuid = UUID.randomUUID().toString().replaceAll( "-", "" );
-        final String baseName = filename.substring( 0, filename.lastIndexOf( '.' ) );
-        final String extension = filename.substring( filename.lastIndexOf( '.' ) + 1, filename.length() );
+        Assert.notNull( filename, "Filename instance is empty : " + filename );
         
-        return (uuid + '-' + baseName + '-' + extension);
+        // Filename Rule : [uuid-32-chars]-[original-file-name]
+        // example : 081e756fd63f4648b077a42cc4acf88e-site_logo.png
+        final StringBuffer buffer = new StringBuffer(UUID.randomUUID().toString().replaceAll( "-", "" ));
+        buffer.append( '-' ).append( filename );
+        
+        return buffer.toString(); 
     }
     
     protected final String getOriginalFilename( final String storedFilename ) {
+        Assert.notNull( storedFilename, "Stored object's filename instance is empty : " + storedFilename );
+        
         // recycle method
         return SwiftOSFileInfo.getOriginalFilename( storedFilename );
     }
