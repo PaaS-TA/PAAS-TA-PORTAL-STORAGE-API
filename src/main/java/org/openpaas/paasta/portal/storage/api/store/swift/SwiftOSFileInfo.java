@@ -4,6 +4,7 @@ import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.store.ObjectStorageFileInfo;
+import org.springframework.util.Assert;
 
 public class SwiftOSFileInfo extends ObjectStorageFileInfo<SwiftOSFileInfo> {
     private SwiftOSFileInfo() { super(); }
@@ -37,35 +38,32 @@ public class SwiftOSFileInfo extends ObjectStorageFileInfo<SwiftOSFileInfo> {
     }
     
     public static final String getOriginalFilename( final String storedFilename ) {
+        Assert.notNull( storedFilename, "Stored object's filename is empty" );
+        
         if ( !storedFilename.contains( "-" ) )
             return storedFilename;
         
         final int firstIndex = storedFilename.indexOf( '-' ) + 1;
-        final int middleIndex = storedFilename.lastIndexOf( '-' );
         final int lastIndex = storedFilename.length();
-        final StringBuffer buffer = new StringBuffer();
-        buffer.append( storedFilename.substring( firstIndex, middleIndex ) )
-        .append( '.' )
-        .append( storedFilename.substring( middleIndex + 1, lastIndex) ); 
         
-        return buffer.toString();
+        return storedFilename.substring( firstIndex, lastIndex );
     }
     
     public boolean isEmptyInstance() {
         if (null == this.filename)
-            return false;
+            return true;
         
         if (null == this.storedFilename)
-            return false;
+            return true;
         
         if ("".equals( this.filename.replaceAll( " ", "" ) ))
-            return false;
+            return true;
         
         if ("".equals( this.storedFilename.replaceAll( " ", "" ) ))
-            return false;
+            return true;
         
         // finally...
-        return true;
+        return false;
     }
 
     @Override
