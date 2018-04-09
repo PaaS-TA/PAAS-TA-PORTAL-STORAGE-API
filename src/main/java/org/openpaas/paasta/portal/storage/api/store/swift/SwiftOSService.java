@@ -8,12 +8,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import javax.swing.filechooser.FileNameExtensionFilter;
-
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
-import org.openpaas.paasta.portal.storage.api.config.SwiftOSConfig;
-import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.store.ObjectStorageService;
 import org.slf4j.Logger;
@@ -121,10 +117,12 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         final StoredObject object = container.getObject( filename );
         Assert.notNull( object, "StoredObject instance is empty : " + object );
         
-        LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
-        //LOGGER.debug( "Delete object : {}", object.getName() );
-        if (true == object.exists())
+        if (true == object.exists()) {
+            LOGGER.debug( "Delete object : {} ({})", object.getName(), object.getMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY ) );
             object.delete();
+        } else {
+            LOGGER.warn( "Cannot delete non-existed object... : {}", filename );
+        }
         
         // after delete...
         if (true == object.exists()) {

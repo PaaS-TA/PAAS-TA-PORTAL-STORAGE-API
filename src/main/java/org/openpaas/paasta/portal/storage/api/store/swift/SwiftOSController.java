@@ -1,5 +1,7 @@
 package org.openpaas.paasta.portal.storage.api.store.swift;
 
+import static org.junit.Assert.assertNotNull;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -58,9 +60,8 @@ public class SwiftOSController {
         headers.add( "Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE );
         headers.add( "X-Content-Type-Options", "nosniff" );
         
-        //return ObjectMapperUtils.writeValueAsString( fileInfo );
-        return createResponseEntity(
-            ObjectMapperUtils.writeValueAsString( fileInfo ), headers, HttpStatus.CREATED);
+        return createResponseEntity( 
+            ObjectMapperUtils.writeValueAsString( fileInfo ), headers, HttpStatus.CREATED );
     }
 
     /**
@@ -71,9 +72,7 @@ public class SwiftOSController {
     public Object getObjectRawURL( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response ) throws FileNotFoundException {
         final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
-        //addNoSniffContentHeader( response, MediaType.TEXT_PLAIN );
         
-        //return fileInfo.getFileURL();
         return createResponseEntity( fileInfo.getFileURL(), null, HttpStatus.CREATED );
     }
     
@@ -82,22 +81,25 @@ public class SwiftOSController {
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response )
             throws IOException {
         final StoredObject object = swiftOSService.getRawObject( name );
+        if (null == object) {
+            return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
+        }
+        
         final HttpHeaders headers = new HttpHeaders();
         headers.add( "Content-Disposition", ( "attachment;filename=" + name ) );
         headers.add( "Content-Transfer-Encoding", "binary" );
-        
-        if (null == object) {
-            return createResponseEntity( new byte[0], headers, HttpStatus.NOT_FOUND );
-        } else {
-            headers.add( "Content-Type", object.getContentType() );
+    
+        headers.add( "Content-Type", object.getContentType() );
 
-            // debugging only
+        // debugging only
+        if (LOGGER.isDebugEnabled()) {
             for ( Entry<String, List<String>> entry : headers.entrySet() )
-            LOGGER.debug( "Header {} : {}", entry.getKey(), entry.getValue() );
-            byte[] rawContents = object.downloadObject();
-            LOGGER.debug( "Raw content's length of {} : {}", object.getName(), rawContents.length );
-            return createResponseEntity( rawContents, headers, HttpStatus.CREATED );
+                LOGGER.debug( "Header {} : {}", entry.getKey(), entry.getValue() );
         }
+        
+        byte[] rawContents = object.downloadObject();
+        LOGGER.debug( "Raw content's length of {} : {}", object.getName(), rawContents.length );
+        return createResponseEntity( rawContents, headers, HttpStatus.CREATED );
     }
 
     /**
@@ -110,18 +112,17 @@ public class SwiftOSController {
 
     /**
      * Remove object in object storage (remove/delete, DELETE)
+     * @throws IOException 
      */
     @DeleteMapping( SwiftOSControllerURI.OBJECT_DELETE_URI )
-    public Object removeObject( @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response ) {
-        //addNoSniffContentHeader( response, MediaType.TEXT_PLAIN );
-        
-        ResultStatus status;
-        if (swiftOSService.removeObject( name ))
-            status = ResultStatus.SUCCESS;
-        else
-            status = ResultStatus.FAIL;
-        
-        return createResponseEntity( status, null, HttpStatus.CREATED );
+    public Object removeObject( @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response ) throws IOException {
+        if (swiftOSService.removeObject( name )) {
+            return createResponseEntity( 
+                ObjectMapperUtils.writeValueAsString( ResultStatus.SUCCESS ), null, HttpStatus.CREATED );
+        } else {
+            return createResponseEntity( 
+                ObjectMapperUtils.writeValueAsString( ResultStatus.FAIL ), null, HttpStatus.CREATED );
+        }
     }
     
     @GetMapping( SwiftOSControllerURI.OBJECT_LIST_URI )
@@ -138,13 +139,19 @@ public class SwiftOSController {
         return buffer.toString();
     }
     
-    private <T> ResponseEntity<T> createResponseEntity(final T object, HttpHeaders headers, final HttpStatus httpStatus) {
+    private <T> ResponseEntity<T> createResponseEntity(final T object, HttpHeaders headers, HttpStatus httpStatus) {
+        assertNotNull( object );
+        
         if (null == headers) {
             headers = new HttpHeaders();
             headers.add( "Content-Type", MediaType.TEXT_PLAIN_VALUE );
+            // This header works only for script or css
             headers.add( "X-Content-Type-Options", "nosniff" );
         }
         headers.add( "X-XSS-Protection", "1; mode=block" ); 
+        
+        if (null == httpStatus)
+            httpStatus = HttpStatus.CREATED;
         
         final ResponseEntity<T> resEntity = new ResponseEntity<>( object, headers, httpStatus );
         return resEntity;
