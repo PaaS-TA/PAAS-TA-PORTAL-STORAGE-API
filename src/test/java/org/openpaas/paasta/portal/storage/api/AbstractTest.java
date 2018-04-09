@@ -5,15 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.junit.FixMethodOrder;
-import org.junit.runner.RunWith;
-import org.junit.runners.MethodSorters;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
 
-@RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@FixMethodOrder(MethodSorters.NAME_ASCENDING)
 public class AbstractTest {
     protected static Logger logger = LoggerFactory.getLogger( AbstractTest.class );
     
@@ -32,7 +24,5 @@ public class AbstractTest {
     }
     
     @Test
-    public void test() {
-        
-    }
+    public final void defaultTest() { }
 }

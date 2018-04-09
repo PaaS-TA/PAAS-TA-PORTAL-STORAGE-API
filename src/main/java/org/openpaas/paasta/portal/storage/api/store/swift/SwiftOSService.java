@@ -34,32 +34,12 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     public SwiftOSFileInfo putObject( final MultipartFile multipartFile ) throws IOException {
         Assert.notNull( multipartFile, "MultipartFile instance is empty : " + multipartFile );
         
-        final String filename = multipartFile.getOriginalFilename();
-        final String storedFilename = generateStoredFilename( filename );
-        LOGGER.debug( "transferring filename : {}", filename );
-        LOGGER.debug( "storing filename into object storage : {}", storedFilename );
-        
-        // create StoredObject instance
-        final StoredObject object = container.getObject( storedFilename );
-        LOGGER.debug( "StoredObject : {}", object );
-        
-        // upload object
-        object.uploadObject( multipartFile.getInputStream() );
-        LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
-        
-        // after it uploads object, it sets content type and additional metadata in object storage
-        object.setContentType( multipartFile.getContentType() );
-        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, multipartFile.getOriginalFilename() );
-        
-        final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
-        LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
-        
-        return fileInfo;
+        return putObject( multipartFile.getOriginalFilename(), multipartFile.getInputStream(), multipartFile.getContentType() );
     }
     
-    public SwiftOSFileInfo putObject( final String filename, final InputStream content, final String contentType ) {
+    public SwiftOSFileInfo putObject( final String filename, final InputStream contents, final String contentType ) {
         Assert.notNull( filename, "Filename instance is empty : " + filename );
-        Assert.notNull( content, "InputStream content instance is empty : " + content );
+        Assert.notNull( contents, "InputStream content instance is empty : " + contents );
         Assert.notNull( contentType, "Content type instance is empty : " + contentType );
         
         // create StoredObject instance
@@ -68,10 +48,10 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         LOGGER.debug( "StoredObject : {}", object );
         
         // upload object
-        object.uploadObject( content );
+        object.uploadObject( contents );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
-        // after its service uploads object(content), it sets content type and additional metadata in object storage
+        // after its service uploads object(contents), it sets content type and additional metadata in object storage
         object.setContentType( contentType );
         object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
         
