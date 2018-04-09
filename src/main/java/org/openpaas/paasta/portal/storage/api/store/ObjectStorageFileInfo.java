@@ -15,6 +15,7 @@ public abstract class ObjectStorageFileInfo<T> {
     protected String fileURL;
     protected String fileType;
     protected long length;
+    protected long uploadTimestamp;
     protected ResultStatus resultStatus;
     
     public static <T> T newInstance() {
@@ -59,6 +60,14 @@ public abstract class ObjectStorageFileInfo<T> {
     
     public void setLength( long length ) {
         this.length = length;
+    }
+    
+    public long getUploadTimestamp() {
+        return uploadTimestamp;
+    }
+    
+    public void setUploadTimestamp( long uploadTimestamp ) {
+        this.uploadTimestamp = uploadTimestamp;
     }
 
     public ResultStatus getResultStatus() {

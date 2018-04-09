@@ -6,6 +6,8 @@ import static org.junit.Assert.assertTrue;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Collection;
+
 import org.javaswift.joss.client.mock.AccountMock;
 import org.javaswift.joss.client.mock.ContainerMock;
 import org.javaswift.joss.model.StoredObject;
@@ -15,6 +17,7 @@ import org.junit.runners.MethodSorters;
 import org.mockito.Mock;
 import org.openpaas.paasta.portal.storage.api.AbstractTest;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.util.FilenameUtils;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -35,8 +38,8 @@ public class SwiftOSServiceTest extends AbstractTest {
     @Override
     public void setUp() throws Exception {
         account = new AccountMock();
-        //account.setPublicHost( "http://127.0.0.1" );
-        //account.setPreferredRegion( "Public" );
+        account.setPublicHost( "http://127.0.0.1" );
+        account.setPreferredRegion( "Public" );
         
         container = (ContainerMock) new ContainerMock( account, "test-container" );
         if (false == container.exists()) {
@@ -52,8 +55,13 @@ public class SwiftOSServiceTest extends AbstractTest {
     public void tearDown() throws Exception {
         multipartFile.getInputStream().close();
         
-        if (container.exists())
+        if (container.exists()) {
+            Collection<StoredObject> list = container.list();
+            for (final StoredObject obj : list) 
+                obj.delete();
+            
             container.delete();
+        }
     }
     
     private final SwiftOSFileInfo uploadObjectMock() {
@@ -76,19 +84,20 @@ public class SwiftOSServiceTest extends AbstractTest {
     public void testPutObject() throws IOException {
         final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile );
         assertEquals( fileInfo.getFilename(), filename );
-        assertTrue( fileInfo.getStoredFilename().contains( filename ) );
+        assertTrue( fileInfo.getStoredFilename().contains( FilenameUtils.encodeFilename( filename ) ) );
         assertEquals( fileInfo.getFileType(), contentType );
         assertEquals( fileInfo.getLength(), contents.length );
+        assertEquals( fileInfo.getUploadTimestamp(), FilenameUtils.getUploadTimestamp( fileInfo.getStoredFilename() ));
         assertEquals( fileInfo.getResultStatus(), ResultStatus.SUCCESS );
+        removeObjectMock( fileInfo.getStoredFilename() );
         
         final SwiftOSFileInfo fileInfo2 = swiftOSService.putObject( filename, new ByteArrayInputStream( contents ), contentType );
         assertEquals( fileInfo2.getFilename(), filename );
-        assertTrue( fileInfo2.getStoredFilename().contains( filename ) );
+        assertTrue( fileInfo2.getStoredFilename().contains( FilenameUtils.encodeFilename( filename ) ) );
         assertEquals( fileInfo2.getFileType(), contentType );
         assertEquals( fileInfo2.getLength(), contents.length );
+        assertEquals( fileInfo2.getUploadTimestamp(), FilenameUtils.getUploadTimestamp( fileInfo2.getStoredFilename() ));
         assertEquals( fileInfo2.getResultStatus(), ResultStatus.SUCCESS );
-        
-        removeObjectMock( fileInfo.getStoredFilename() );
         removeObjectMock( fileInfo2.getStoredFilename() );
     }
     
@@ -98,18 +107,18 @@ public class SwiftOSServiceTest extends AbstractTest {
         
         final SwiftOSFileInfo fileInfo = swiftOSService.getObject( generateFileInfo.getStoredFilename() );
         assertEquals( fileInfo.getFilename(), filename );
-        assertTrue( fileInfo.getStoredFilename().contains( filename ) );
+        assertTrue( fileInfo.getStoredFilename().contains( FilenameUtils.encodeFilename( filename ) ) );
         assertEquals( fileInfo.getFileType(), contentType );
         assertEquals( fileInfo.getLength(), contents.length );
+        assertEquals( fileInfo.getUploadTimestamp(), FilenameUtils.getUploadTimestamp( fileInfo.getStoredFilename() ));
         assertEquals( fileInfo.getResultStatus(), ResultStatus.SUCCESS );
-        
         removeObjectMock( fileInfo.getStoredFilename() );
     }
     
     @Test
     public void testUpdateObject() {
         try {
-            swiftOSService.updateObject( swiftOSService.generateStoredFilename( filename ), multipartFile );
+            swiftOSService.updateObject( swiftOSService.generateStoredFilename( filename, 0L ), multipartFile );
         } catch (final Throwable e) {
             assertTrue(e instanceof UnsupportedOperationException);
         }
@@ -123,24 +132,5 @@ public class SwiftOSServiceTest extends AbstractTest {
         assertTrue( isRemove );
         
         removeObjectMock( fileInfo.getStoredFilename() );
-    }
-    
-    @Test
-    public void testGenerateFilenameAndExtractOriginalFilename() throws Exception {
-        final String[] filenames = {
-            "test1234.png", "test-1234.png", "test-1234.bak.png",
-            ".test1234.png", ".test-1234.png", ".test-1234.bak.png",
-            "-test1234.png", "-test-1234.png", "-test-1234.bak.png",
-        };
-        
-        for (final String filename : filenames) {
-            String storedFilename = swiftOSService.generateStoredFilename( filename );
-            String restoreFilename = swiftOSService.getOriginalFilename( storedFilename );
-            logger.info( "original filename : {}", filename );
-            logger.info( "stored filename : {}", storedFilename );
-            logger.info( "restored original filename : {}", restoreFilename );
-            
-            assertTrue( restoreFilename.equals( filename ) );
-        }
     }
 }

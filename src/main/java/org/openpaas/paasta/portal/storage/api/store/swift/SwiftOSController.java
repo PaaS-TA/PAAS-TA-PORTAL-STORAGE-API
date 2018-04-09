@@ -14,6 +14,7 @@ import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSControllerURI;
+import org.openpaas.paasta.portal.storage.api.util.FilenameUtils;
 import org.openpaas.paasta.portal.storage.api.util.ObjectMapperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,15 +82,19 @@ public class SwiftOSController {
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response )
             throws IOException {
         final StoredObject object = swiftOSService.getRawObject( name );
+        final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         if (null == object) {
             return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
         }
         
         final HttpHeaders headers = new HttpHeaders();
-        headers.add( "Content-Disposition", ( "attachment;filename=" + name ) );
+        
+        // use SwiftOSFileInfo.getFilename() instead of name(stored filename)
+        headers.add( "Content-Disposition", ( "attachment;filename=" + fileInfo.getFilename() ) );
         headers.add( "Content-Transfer-Encoding", "binary" );
-    
-        headers.add( "Content-Type", object.getContentType() );
+        
+        // use SwiftOSFileInfo.getFileType() instead of StoredObject.getContentType()
+        headers.add( "Content-Type", fileInfo.getFileType() );
 
         // debugging only
         if (LOGGER.isDebugEnabled()) {
@@ -130,10 +135,14 @@ public class SwiftOSController {
         final StringBuffer buffer = new StringBuffer();
         final List<String> files = swiftOSService.listFileURLs();
         
-        for (final String file : files) {
-            buffer.append( "<p>" )
-            .append( file )
-            .append( "</p>" );
+        if (files.size() <= 0) {
+            buffer.append( "<h2>No files.</h2>" );
+        } else {
+            for (final String file : files) {
+                buffer.append( "<p>" )
+                .append( file )
+                .append( "</p>" );
+            }
         }
         
         return buffer.toString();

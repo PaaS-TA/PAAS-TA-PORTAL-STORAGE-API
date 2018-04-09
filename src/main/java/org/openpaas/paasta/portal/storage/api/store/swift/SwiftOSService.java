@@ -6,12 +6,11 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.UUID;
-
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.store.ObjectStorageService;
+import org.openpaas.paasta.portal.storage.api.util.FilenameUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +42,8 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         Assert.notNull( contentType, "Content type instance is empty : " + contentType );
         
         // create StoredObject instance
-        final String storedFilename = generateStoredFilename( filename );
+        final Long currentTimestamp = System.currentTimeMillis();
+        final String storedFilename = generateStoredFilename( filename, currentTimestamp );
         final StoredObject object = container.getObject( storedFilename );
         LOGGER.debug( "StoredObject : {}", object );
         
@@ -52,8 +52,9 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
         // after its service uploads object(contents), it sets content type and additional metadata in object storage
-        object.setContentType( contentType );
-        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
+        object.setAndDoNotSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
+        object.setAndDoNotSaveMetadata( SwiftOSCommonParameter.OBJECT_UPLOAD_TIMESTAMP, currentTimestamp );
+        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_CONTENT_TYPE, contentType );
         
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
@@ -125,22 +126,15 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         
         return urlList;
     }
-
-    protected final String generateStoredFilename( final String filename ) {
-        Assert.notNull( filename, "Filename instance is empty : " + filename );
-        
-        // Filename Rule : [uuid-32-chars]-[original-file-name]
-        // example : 081e756fd63f4648b077a42cc4acf88e-site_logo.png
-        final StringBuffer buffer = new StringBuffer(UUID.randomUUID().toString().replaceAll( "-", "" ));
-        buffer.append( '-' ).append( filename );
-        
-        return buffer.toString(); 
+    
+    protected final String generateStoredFilename( final String filename, final Long timestamp ) {
+        Assert.notNull( filename, "Filename is empty" );
+        Assert.notNull( timestamp, "Timestamp is empty" );
+        return FilenameUtils.generateStoredFilename( filename, timestamp );
     }
     
     protected final String getOriginalFilename( final String storedFilename ) {
         Assert.notNull( storedFilename, "Stored object's filename instance is empty : " + storedFilename );
-        
-        // recycle method
-        return SwiftOSFileInfo.getOriginalFilename( storedFilename );
+        return FilenameUtils.getOriginalFilename( storedFilename );
     }
 }

@@ -83,5 +83,7 @@ public class SwiftOSConstants {
         public static final String OBJECT_INSERT_FILE = "file";
         public static final String OBJECT_FILENAME_PATH_VARIABLE = "name";
         public static final String OBJECT_ORIGINAL_FILENAME_METAKEY = "originalfilename";
+        public static final String OBJECT_UPLOAD_TIMESTAMP = "uploadtimestamp";
+        public static final String OBJECT_CONTENT_TYPE = "contenttype";
     }
 }
