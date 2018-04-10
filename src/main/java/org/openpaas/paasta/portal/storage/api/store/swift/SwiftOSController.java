@@ -5,6 +5,9 @@ import static org.junit.Assert.assertNotNull;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map.Entry;
 
@@ -14,7 +17,6 @@ import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSControllerURI;
-import org.openpaas.paasta.portal.storage.api.util.FilenameUtils;
 import org.openpaas.paasta.portal.storage.api.util.ObjectMapperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,7 +54,7 @@ public class SwiftOSController {
      * Put object into Object Storage (upload, POST)
      * @throws IOException 
      */
-    @PostMapping( SwiftOSControllerURI.OBJECT_INSERT_URI )
+    @PostMapping( value = { SwiftOSControllerURI.OBJECT_INSERT_URIS_A, SwiftOSControllerURI.OBJECT_INSERT_URIS_B } )
     public Object uploadObject(
         @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
         final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile );
@@ -71,10 +73,22 @@ public class SwiftOSController {
      */
     @GetMapping( SwiftOSControllerURI.OBJECT_GET_RAW_URI )
     public Object getObjectRawURL( 
-        @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response ) throws FileNotFoundException {
+        @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name ) throws FileNotFoundException {
         final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
         
         return createResponseEntity( fileInfo.getFileURL(), null, HttpStatus.CREATED );
+    }
+    
+    /**
+     * Get content type of object in object storage (GET)
+     * @throws FileNotFoundException
+     */
+    @GetMapping( SwiftOSControllerURI.OBJECT_GET_CONTENT_TYPE_URI )
+    public Object getObjectContentType( 
+        @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name) throws FileNotFoundException {
+        final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
+        
+        return createResponseEntity( fileInfo.getFileType(), null, HttpStatus.CREATED );
     }
     
     @GetMapping( SwiftOSControllerURI.OBJECT_GET_RESOURCE_URI )
@@ -122,11 +136,9 @@ public class SwiftOSController {
     @DeleteMapping( SwiftOSControllerURI.OBJECT_DELETE_URI )
     public Object removeObject( @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response ) throws IOException {
         if (swiftOSService.removeObject( name )) {
-            return createResponseEntity( 
-                ObjectMapperUtils.writeValueAsString( ResultStatus.SUCCESS ), null, HttpStatus.CREATED );
+            return createResponseEntity( ResultStatus.SUCCESS, null, HttpStatus.CREATED );
         } else {
-            return createResponseEntity( 
-                ObjectMapperUtils.writeValueAsString( ResultStatus.FAIL ), null, HttpStatus.CREATED );
+            return createResponseEntity( ResultStatus.FAIL, null, HttpStatus.CREATED );
         }
     }
     
@@ -167,12 +179,13 @@ public class SwiftOSController {
     }
 
     @GetMapping( "/v2/swift/upload-test/{local-file:.+}" )
-    public Object uploadTestObject(@PathVariable("local-file") String localFilePath) throws IOException {
+    public Object uploadTestObject(@PathVariable("local-file") String localFilePath) throws IOException, URISyntaxException {
         //final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile )
         InputStream is = getClass().getResourceAsStream( '/' + localFilePath );
+        String contentType = Files.probeContentType( Paths.get( getClass().getResource( '/' + localFilePath ).toURI() ) );
         SwiftOSFileInfo fileInfo;
         if (null != is) {
-            fileInfo = swiftOSService.putObject( localFilePath, is, "Application/octet-stream" );
+            fileInfo = swiftOSService.putObject( localFilePath, is, contentType );
         } else {
             fileInfo = SwiftOSFileInfo.newInstance();
         }

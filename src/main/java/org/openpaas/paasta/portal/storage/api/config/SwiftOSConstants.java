@@ -61,10 +61,15 @@ public class SwiftOSConstants {
         public static final String OBJECT_GET_RESOURCE_URI = OBJECT_STORAGE_ROOT_URI + "/{name:.+}";
         
         /** Get object in object storage (GET) */
-        public static final String OBJECT_GET_RAW_URI = OBJECT_STORAGE_ROOT_URI + "/{name:.+}/raw-url";
+        public static final String OBJECT_GET_RAW_URI = OBJECT_STORAGE_ROOT_URI + "/{name:.+}/rawurl";
+        
+        /** Get content type of object in object storage (GET) */
+        public static final String OBJECT_GET_CONTENT_TYPE_URI = "OBJECT_STORAGE_ROOT_URI" + "/{name:.+}/contenttype";
         
         /** Insert(Register) object in object storage (POST) */
-        public static final String OBJECT_INSERT_URI = OBJECT_STORAGE_ROOT_URI + "/";
+        public static final String OBJECT_INSERT_URIS_A = OBJECT_STORAGE_ROOT_URI + "/";
+        /** Insert(Register) object in object storage (POST) */
+        public static final String OBJECT_INSERT_URIS_B = OBJECT_STORAGE_ROOT_URI;
         
         /** Modify object in object storage (PUT) -- Unsupported Operation */
         public static final String OBJECT_MODIFY_URI = OBJECT_STORAGE_ROOT_URI + "/{name:.+}";
