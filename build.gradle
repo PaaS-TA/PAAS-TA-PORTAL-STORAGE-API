@@ -26,7 +26,6 @@ apply plugin: 'jacoco'
 
 jar {
     baseName = 'paas-ta-portal-storage-api'
-    version = '0.1.0-SNAPSHOT'
 }
 
 sourceCompatibility = 1.8
