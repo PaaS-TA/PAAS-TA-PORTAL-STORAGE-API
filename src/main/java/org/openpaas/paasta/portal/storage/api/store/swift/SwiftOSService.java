@@ -49,12 +49,14 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         
         // upload object
         object.uploadObject( contents );
+        object.setContentType( contentType );
         LOGGER.debug( "Done upload object : {} ({})", storedFilename, object.getPublicURL() );
         
         // after its service uploads object(contents), it sets content type and additional metadata in object storage
         object.setAndDoNotSaveMetadata( SwiftOSCommonParameter.OBJECT_ORIGINAL_FILENAME_METAKEY, filename );
         object.setAndDoNotSaveMetadata( SwiftOSCommonParameter.OBJECT_UPLOAD_TIMESTAMP, currentTimestamp );
-        object.setAndSaveMetadata( SwiftOSCommonParameter.OBJECT_CONTENT_TYPE, contentType );
+        object.setAndDoNotSaveMetadata( SwiftOSCommonParameter.OBJECT_CONTENT_TYPE, contentType );
+        object.saveMetadata();
         
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
