@@ -23,7 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
-    private static final Logger LOGGER = LoggerFactory.getLogger( SecurityConfig.class );
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityConfig.class);
 
     @Value("${spring.security.username}")
     String username;
@@ -38,22 +38,22 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
      */
 
     private PasswordEncoder passwordEncoder = null;
-    
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         if (null == passwordEncoder) {
             passwordEncoder = new BCryptPasswordEncoder();
         }
-        
+
         return passwordEncoder;
     }
 
     @Autowired
     protected void configureGlobal(AuthenticationManagerBuilder auth) throws Exception {
-        LOGGER.info( "User : {} / Password : {}", username, password );
+        LOGGER.info("User : {} / Password : {}", username, password);
         auth.inMemoryAuthentication()
-            /* .passwordEncoder( passwordEncoder() ) */
-            .withUser(username).password(password).roles("USER");
+                /* .passwordEncoder( passwordEncoder() ) */
+                .withUser(username).password(password).roles("USER");
     }
 
     @Bean
@@ -65,19 +65,49 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         http
-            .sessionManagement()
-            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-            .and()
-            .authorizeRequests()
-            .antMatchers("/*").permitAll()
-            .antMatchers( SwiftOSControllerURI.OBJECT_STORAGE_HELLO_SERVICE ).permitAll()
-            .antMatchers( 
-                SwiftOSControllerURI.OBJECT_STORAGE_ROOT_URI + "/**").hasRole("USER")
-            .anyRequest().authenticated()
-            .and()
-            .httpBasic()
-            .and()
-            .csrf().disable().cors().disable();
+                .sessionManagement()
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeRequests()
+                //Spring boot Admin 정보 접근 URL -  시작
+                .antMatchers("/").permitAll()
+                .antMatchers("/index").permitAll()
+                .antMatchers("/info**").permitAll()
+                .antMatchers("/env**").permitAll()
+                .antMatchers("/metrics**").permitAll()
+                .antMatchers("/trace**").permitAll()
+                .antMatchers("/dump**").permitAll()
+                .antMatchers("/jolokia**").permitAll()
+                .antMatchers("/configprops**").permitAll()
+                .antMatchers("/logfile**").permitAll()
+                .antMatchers("/logging**").permitAll()
+                .antMatchers("/refresh**").permitAll()
+                .antMatchers("/flyway**").permitAll()
+                .antMatchers("/liquibase**").permitAll()
+                .antMatchers("/httptrace**").permitAll()
+                .antMatchers("/threaddump**").permitAll()
+                .antMatchers("/heapdump**").permitAll()
+                .antMatchers("/loggers**").permitAll()
+                .antMatchers("/auditevents**").permitAll()
+                .antMatchers("/hystrix.stream**").permitAll()
+                .antMatchers("/docs**").permitAll()
+                .antMatchers("/jmx**").permitAll()
+                .antMatchers("/management/**").permitAll()
+                .antMatchers("/applications/**").permitAll()
+                .antMatchers("/applications/**/**").permitAll()
+                .antMatchers("/applications/**/**/**").permitAll()
+                .antMatchers("/health**").permitAll()
+                .antMatchers("/health/**").permitAll()
+                //Spring boot Admin 정보 접근 URL - 끝
+                .antMatchers("/*").permitAll()
+                .antMatchers(SwiftOSControllerURI.OBJECT_STORAGE_HELLO_SERVICE).permitAll()
+                .antMatchers(
+                        SwiftOSControllerURI.OBJECT_STORAGE_ROOT_URI + "/**").hasRole("USER")
+                .anyRequest().authenticated()
+                .and()
+                .httpBasic()
+                .and()
+                .csrf().disable().cors().disable();
     }
 
 }
