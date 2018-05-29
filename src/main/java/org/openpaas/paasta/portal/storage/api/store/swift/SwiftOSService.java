@@ -45,6 +45,9 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         final Long currentTimestamp = System.currentTimeMillis();
         final String storedFilename = generateStoredFilename( filename, currentTimestamp );
         final StoredObject object = container.getObject( storedFilename );
+        if (null == object)
+            return null;
+
         LOGGER.debug( "StoredObject : {}", object );
         
         // upload object
@@ -70,7 +73,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         
         final StoredObject object = getRawObject( filename );
         final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
-        LOGGER.debug( "SwiftOSFileInfo : {}", fileInfo );
+        LOGGER.debug( "StoredObject : {} / SwiftOSFileInfo : {}", object, fileInfo );
         
         return fileInfo;
     }

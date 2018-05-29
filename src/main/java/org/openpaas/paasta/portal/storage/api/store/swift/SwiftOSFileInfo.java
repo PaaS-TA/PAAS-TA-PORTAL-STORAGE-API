@@ -15,6 +15,9 @@ public class SwiftOSFileInfo extends ObjectStorageFileInfo<SwiftOSFileInfo> {
     }
 
     public static final SwiftOSFileInfo newInstanceFromStoredObject( final StoredObject storedObj ) {
+        if (null == storedObj)
+            return null;
+
         final SwiftOSFileInfo info = newInstance();
         info.setStoredFilename( storedObj.getName() );
         info.setLength( storedObj.getContentLength() );

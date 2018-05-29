@@ -58,7 +58,11 @@ public class SwiftOSController {
     public Object uploadObject(
         @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
         final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile );
-        
+        if (null == fileInfo) {
+            LOGGER.warn("Cannot find information for stored object in swift object storage. :: uploadObject");
+            return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
+        }
+
         HttpHeaders headers = new HttpHeaders();
         headers.add( "Content-Type", MediaType.APPLICATION_JSON_UTF8_VALUE );
         headers.add( "X-Content-Type-Options", "nosniff" );
@@ -75,7 +79,12 @@ public class SwiftOSController {
     public Object getObjectRawURL( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name ) throws FileNotFoundException {
         final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
-        
+        if (null == fileInfo) {
+            LOGGER.warn("Cannot create information instance for stored object in swift object storage. :: " +
+                "getObjectRawURL");
+            return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
+        }
+
         return createResponseEntity( fileInfo.getFileURL(), null, HttpStatus.CREATED );
     }
     
@@ -87,6 +96,10 @@ public class SwiftOSController {
     public Object getObjectContentType( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name) throws FileNotFoundException {
         final SwiftOSFileInfo fileInfo = swiftOSService.getObject( name );
+        if (null == fileInfo) {
+            LOGGER.warn("Cannot create information instance for stored object in swift object storage. :: getObjectContentType");
+            return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
+        }
         
         return createResponseEntity( fileInfo.getFileType(), null, HttpStatus.CREATED );
     }
@@ -96,8 +109,14 @@ public class SwiftOSController {
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response )
             throws IOException {
         final StoredObject object = swiftOSService.getRawObject( name );
-        final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
         if (null == object) {
+            LOGGER.warn("Cannot find stored object in swift object storage.");
+            //return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
+        }
+
+        final SwiftOSFileInfo fileInfo = SwiftOSFileInfo.newInstanceFromStoredObject( object );
+        if (null == fileInfo) {
+            LOGGER.warn("Cannot create information instance for stored object in swift object storage.");
             return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
         }
         
@@ -186,6 +205,10 @@ public class SwiftOSController {
         SwiftOSFileInfo fileInfo;
         if (null != is) {
             fileInfo = swiftOSService.putObject( localFilePath, is, contentType );
+            if (null == fileInfo) {
+                LOGGER.warn("Cannot find information for stored object in swift object storage :: upload test object");
+                return createResponseEntity( new byte[0], null, HttpStatus.NOT_FOUND );
+            }
         } else {
             fileInfo = SwiftOSFileInfo.newInstance();
         }
