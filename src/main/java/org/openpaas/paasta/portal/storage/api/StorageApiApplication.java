@@ -3,6 +3,7 @@ package org.openpaas.paasta.portal.storage.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.context.annotation.ComponentScan;
 
 /**
@@ -14,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
  * @since 2018. 4. 2.
  *
  */
+@EnableCircuitBreaker
 @SpringBootApplication
 @ComponentScan(basePackages = {"org.openpaas.paasta.portal.storage.api"})
 public class StorageApiApplication {

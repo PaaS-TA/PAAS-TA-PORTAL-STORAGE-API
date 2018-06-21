@@ -55,7 +55,12 @@ dependencies {
     compile ('org.springframework.cloud:spring-cloud-starter-eureka')
     //Java Client for OpenStack Storage
     compile ("org.javaswift:joss:${jossVersion}")
-    
+
+
+    //hystrix
+    compile('org.springframework.cloud:spring-cloud-starter-hystrix:1.4.4.RELEASE')
+    compile('org.springframework.boot:spring-boot-starter-actuator')
+
 
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
