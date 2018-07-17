@@ -33,6 +33,7 @@ public class SwiftOSConfig extends ObjectStorageConfig {
      * <p>Create AccountConfig instance for Swift Object Storage. <br>
      * Configurations related to Swift read from spring boot config file.</p>
      * @return {@link org.javaswift.joss.client.factory.AccountConfig AccountConfig}
+     *
      */
     @Bean
     public AccountConfig accountConfig(){
