@@ -1,40 +1,86 @@
+# Spring properties
 spring:
   application:
-      name: PortalStorageApi
-  http:
+    name: PortalStorageApi  # Service registers under this name
+  security:
+    username: admin
+    password: openpaasta
+  http:    # spring boot 1.x
     multipart:
-      maxFileSize: 1000MB
-      maxRequestSize: 1000MB
-  cloud:
-    config:
-      uri: http://localhost:8004
+      enabled: true
+      max-file-size: 1024MB
+      max-request-size: 1024MB
+      location: ${java.io.tmpdir}
+  servlet:    # spring boot 2.x
+    multipart:
+      enabled: ${spring.http.multipart.enabled}
+      max-file-size: ${spring.http.multipart.max-file-size}
+      max-request-size: ${spring.http.multipart.max-request-size}
+      location: ${spring.http.multipart.location}
 
+
+# HTTP Server
 server:
-  port: ${PORT:2226}
+  port: ${PORT:2226}   # HTTP (Tomcat) port
 
-# Discovery Server Access
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:2221/eureka/
-      registry-fetch-interval-seconds: 5
-  instance:
-    hostname: ${spring.cloud.client.hostname}
-    lease-expiration-duration-in-seconds: 5
-    lease-renewal-interval-in-seconds: 10
 
-# Object Storage Example
+
+hystrix:
+  threadpool:
+    default:
+      # Maximum number of concurrent requests when using thread pools (Default: 10)
+      coreSize: 100
+      # Maximum LinkedBlockingQueue size - -1 for using SynchronousQueue (Default: -1)
+      maxQueueSize: -1
+      # Queue size rejection threshold (Default: 5)
+      queueSizeRejectionThreshold: 5
+  command:
+    default:
+      circuitBreaker:
+        sleepWindowInMilliseconds: 60000
+        requestVolumeThreshold: 3
+      execution:
+        isolation:
+          #strategy: SEMAPHORE, no thread pool but timeout handling stops to work
+          strategy: THREAD
+          thread:
+            timeoutInMilliseconds: 60000
+
+---
+spring:
+  profiles: local
+
 objectStorage:
-  swift: 
-    tenantName: OBJECT-STORAGE-TENANT-NAME
-    username: OBJECT-STORAGE-USER-NAME
-    password: OBJECT-STORAGE-PASSWORD
-    container: OBJECT-STORAGE-CONTAINER
-    authMethod: OBJECT-STORAGE-AUTH-METHOD
-    authUrl: OBJECT-STORAGE-AUTH-URL
-    preferredRegion: OBJECT-STORAGE-PREFERRED-REGION
+  swift:
+    tenantName: paasta-portal
+    username: paasta-portal
+    password: paasta
+    authUrl: http://115.68.46.218:5000/v2.0/tokens
+    authMethod: keystone
+    preferredRegion: Public
+    container: portal-container
 
-# Related handling exception
+paasta:
+  portal:
+    storage:
+      api:
+        common:
+          countoflastestexception: 10
+
+---
+spring:
+  profiles: dev
+
+objectStorage:
+  swift:
+    tenantName: paasta-portal
+    username: paasta-portal
+    password: paasta
+    authUrl: http://115.68.46.218:5000/v2.0/tokens
+    authMethod: keystone
+    preferredRegion: Public
+    container: portal-container
+
 paasta:
   portal:
     storage:

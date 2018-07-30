@@ -48,9 +48,9 @@ dependencies {
     //Server Security
     compile ('org.springframework.boot:spring-boot-starter-security')
     //Admin Server Setting
-    compile ("de.codecentric:spring-boot-admin-starter-client:${springBootAdminVersion}")
+//    compile ("de.codecentric:spring-boot-admin-starter-client:${springBootAdminVersion}")
     //Config Server Setting
-    compile('org.springframework.cloud:spring-cloud-starter-config')
+//    compile('org.springframework.cloud:spring-cloud-starter-config')
     //Eureka
     compile ('org.springframework.cloud:spring-cloud-starter-eureka')
     //Java Client for OpenStack Storage
@@ -58,10 +58,10 @@ dependencies {
 
 
     //hystrix
-    compile('org.springframework.cloud:spring-cloud-starter-hystrix:1.4.4.RELEASE')
-    compile('org.springframework.boot:spring-boot-starter-actuator')
+//    compile('org.springframework.cloud:spring-cloud-starter-hystrix:1.4.4.RELEASE')
+//    compile('org.springframework.boot:spring-boot-starter-actuator')
 
-
+    compile('junit:junit:4.12')
     testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 

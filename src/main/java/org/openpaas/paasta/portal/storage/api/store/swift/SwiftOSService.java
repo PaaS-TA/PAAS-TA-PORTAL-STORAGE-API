@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+
 import org.javaswift.joss.model.Container;
 import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.SwiftOSCommonParameter;
@@ -32,7 +32,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     }
 
 
-    @HystrixCommand(commandKey = "putObject")
+    //@HystrixCommand(commandKey = "putObject")
     @Override
     public SwiftOSFileInfo putObject(final MultipartFile multipartFile) throws IOException {
         Assert.notNull(multipartFile, "MultipartFile instance is empty : " + multipartFile);
@@ -40,7 +40,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         return putObject(multipartFile.getOriginalFilename(), multipartFile.getInputStream(), multipartFile.getContentType());
     }
 
-    @HystrixCommand(commandKey = "putObject")
+    //@HystrixCommand(commandKey = "putObject")
     public SwiftOSFileInfo putObject(final String filename, final InputStream contents, final String contentType) {
         Assert.notNull(filename, "Filename instance is empty : " + filename);
         Assert.notNull(contents, "InputStream content instance is empty : " + contents);
@@ -71,7 +71,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         return fileInfo;
     }
 
-    @HystrixCommand(commandKey = "getObject")
+    //@HystrixCommand(commandKey = "getObject")
     @Override
     public SwiftOSFileInfo getObject(final String filename) throws FileNotFoundException {
         Assert.notNull(filename, "Filename instance is empty : " + filename);
@@ -83,7 +83,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         return fileInfo;
     }
 
-    @HystrixCommand(commandKey = "getRawObject")
+    //@HystrixCommand(commandKey = "getRawObject")
     public StoredObject getRawObject(final String filename) {
         Assert.notNull(filename, "Filename instance is empty : " + filename);
 
@@ -92,13 +92,13 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         else return object;
     }
 
-    @HystrixCommand(commandKey = "updateObject")
+    //@HystrixCommand(commandKey = "updateObject")
     @Override
     public SwiftOSFileInfo updateObject(String filename, MultipartFile multipartFile) {
         throw new UnsupportedOperationException("Updating object doesn't support yet.");
     }
 
-    @HystrixCommand(commandKey = "removeObject")
+    //@HystrixCommand(commandKey = "removeObject")
     @Override
     public boolean removeObject(final String filename) {
         Assert.notNull(filename, "Filename instance is empty : " + filename);
@@ -127,7 +127,7 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
         return true;
     }
 
-    @HystrixCommand(commandKey = "listFileURLs")
+    //@HystrixCommand(commandKey = "listFileURLs")
     public List<String> listFileURLs() {
         final Collection<StoredObject> list = container.list();
         Assert.notNull(list, "StoredObject list is empty : " + list);
