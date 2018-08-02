@@ -53,9 +53,9 @@ spring:
 objectStorage:
   swift:
     tenantName: paasta-portal
-    username: paasta-portal
-    password: paasta
-    authUrl: http://115.68.46.218:5000/v2.0/tokens
+    username: paasta-portal # YOUR OBJECT STORAGE ACCOUNT
+    password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
+    authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0/tokens  #YOUR OBJECT STORAGE API URL
     authMethod: keystone
     preferredRegion: Public
     container: portal-container
@@ -74,9 +74,9 @@ spring:
 objectStorage:
   swift:
     tenantName: paasta-portal
-    username: paasta-portal
-    password: paasta
-    authUrl: http://115.68.46.218:5000/v2.0/tokens
+    username: paasta-portal  # YOUR OBJECT STORAGE ACCOUNT
+    password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
+    authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0/tokens  #YOUR OBJECT STORAGE API URL
     authMethod: keystone
     preferredRegion: Public
     container: portal-container
