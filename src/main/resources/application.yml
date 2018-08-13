@@ -46,7 +46,7 @@ server:
 #          thread:
 #            timeoutInMilliseconds: 60000
 #
-#---
+---
 spring:
   profiles: local
 
