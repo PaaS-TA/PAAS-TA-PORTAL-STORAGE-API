@@ -24,38 +24,38 @@ server:
   port: ${PORT:2226}   # HTTP (Tomcat) port
 
 
-
-hystrix:
-  threadpool:
-    default:
-      # Maximum number of concurrent requests when using thread pools (Default: 10)
-      coreSize: 100
-      # Maximum LinkedBlockingQueue size - -1 for using SynchronousQueue (Default: -1)
-      maxQueueSize: -1
-      # Queue size rejection threshold (Default: 5)
-      queueSizeRejectionThreshold: 5
-  command:
-    default:
-      circuitBreaker:
-        sleepWindowInMilliseconds: 60000
-        requestVolumeThreshold: 3
-      execution:
-        isolation:
-          #strategy: SEMAPHORE, no thread pool but timeout handling stops to work
-          strategy: THREAD
-          thread:
-            timeoutInMilliseconds: 60000
-
----
+#Hystrix Setting(current version not used)
+#hystrix:
+#  threadpool:
+#    default:
+#      # Maximum number of concurrent requests when using thread pools (Default: 10)
+#      coreSize: 100
+#      # Maximum LinkedBlockingQueue size - -1 for using SynchronousQueue (Default: -1)
+#      maxQueueSize: -1
+#      # Queue size rejection threshold (Default: 5)
+#      queueSizeRejectionThreshold: 5
+#  command:
+#    default:
+#      circuitBreaker:
+#        sleepWindowInMilliseconds: 60000
+#        requestVolumeThreshold: 3
+#      execution:
+#        isolation:
+#          #strategy: SEMAPHORE, no thread pool but timeout handling stops to work
+#          strategy: THREAD
+#          thread:
+#            timeoutInMilliseconds: 60000
+#
+#---
 spring:
   profiles: local
 
 objectStorage:
   swift:
     tenantName: paasta-portal
-    username: paasta-portal
-    password: paasta
-    authUrl: http://115.68.46.218:5000/v2.0/tokens
+    username: paasta-portal # YOUR OBJECT STORAGE ACCOUNT
+    password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
+    authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0/tokens  #YOUR OBJECT STORAGE API URL
     authMethod: keystone
     preferredRegion: Public
     container: portal-container
@@ -74,9 +74,9 @@ spring:
 objectStorage:
   swift:
     tenantName: paasta-portal
-    username: paasta-portal
-    password: paasta
-    authUrl: http://115.68.46.218:5000/v2.0/tokens
+    username: paasta-portal  # YOUR OBJECT STORAGE ACCOUNT
+    password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
+    authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0/tokens  #YOUR OBJECT STORAGE API URL
     authMethod: keystone
     preferredRegion: Public
     container: portal-container
