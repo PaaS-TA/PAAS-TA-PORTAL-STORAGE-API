@@ -1,0 +1,54 @@
+# Spring properties
+spring:
+  application:
+    name: PortalStorageApi  # Service registers under this name
+  boot:
+    #Spring boot admin settings
+    admin:
+      url: http://localhost:2227
+      routes:
+        endpoints: env,metrics,trace,info,trace,heapdump,hystrix.stream,docs
+        #Timeintervalin ms to update the status of App
+      monitor:
+        perio: 10000
+        #LifeTime of App status in ms.
+        status-lifetime: 10000
+        #Connection Timeout in ms when App's status and info
+        connect-timeout: 2000
+        #Read Timeout in ms when App's status and info
+        read-timeout: 5000
+      metadata-keys-to-sanitize: .password$,.*secret$,.*key$,.$token$,.credentials.,.*vcap_services$
+
+##INFRA_ADMIN Settings
+project:
+  name: paasta-storage-api
+  artifactId: paasta-storage-api
+  description: paasta file management service
+info:
+  app:
+    encoding: Encoding - UTF-8
+  java:
+    source: Source - java ver
+    target: Instance1 - Java ver
+  spring:
+    profiles: ${spring.profiles.active:default}
+  build:
+    name: ${project.name}
+    artifact: ${project.artifactId}
+    description: ${project.description}
+
+management:     # If you set off security...
+  security:
+    enabled: false
+
+# HTTP Server
+server:
+  port: ${PORT:2226}   # HTTP (Tomcat) port
+
+
+objectStorage:
+  tenantName: paasta-portal
+  username: paasta-portal # YOUR OBJECT STORAGE ACCOUT
+  password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
+  authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0 # YOUR OBJECT STORAGE API URL
+  container: portal-container
