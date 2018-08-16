@@ -1,30 +1,32 @@
 package org.openpaas.paasta.portal.storage.api.store.swift;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.javaswift.joss.client.mock.AccountMock;
+import org.javaswift.joss.client.mock.ContainerMock;
+import org.javaswift.joss.model.StoredObject;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
+import org.junit.runners.MethodSorters;
+import org.mockito.Mock;
+import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
+import org.openpaas.paasta.portal.storage.api.util.FilenameUtils;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Collection;
 
-import org.javaswift.joss.client.mock.AccountMock;
-import org.javaswift.joss.client.mock.ContainerMock;
-import org.javaswift.joss.model.StoredObject;
-import org.junit.FixMethodOrder;
-import org.junit.Test;
-import org.junit.runners.MethodSorters;
-import org.mockito.Mock;
-import org.openpaas.paasta.portal.storage.api.AbstractTest;
-import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
-import org.openpaas.paasta.portal.storage.api.util.FilenameUtils;
-import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
-
+@SpringBootTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class SwiftOSServiceTest extends AbstractTest {
+public class SwiftOSServiceTest  {
     private static final String multipartTempFilename = "tmp-multipart-abcdef-test-1234.txt";
     private static final String filename = "test-1234.txt";
     private static final String contentType = MediaType.TEXT_PLAIN_VALUE;
@@ -35,7 +37,7 @@ public class SwiftOSServiceTest extends AbstractTest {
     @Mock private SwiftOSService swiftOSService;
     @Mock private MultipartFile multipartFile;
     
-    @Override
+    @Before
     public void setUp() throws Exception {
         account = new AccountMock();
         account.setPublicHost( "http://127.0.0.1" );
@@ -51,7 +53,7 @@ public class SwiftOSServiceTest extends AbstractTest {
         multipartFile = new MockMultipartFile( multipartTempFilename, filename, contentType, contents );
     }
     
-    @Override
+    @After
     public void tearDown() throws Exception {
         multipartFile.getInputStream().close();
         
