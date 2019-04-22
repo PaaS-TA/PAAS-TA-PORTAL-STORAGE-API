@@ -3,7 +3,6 @@ package org.openpaas.paasta.portal.storage.api;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
 /**
  * PaaS-TA Storage API application. 
@@ -15,7 +14,6 @@ import org.springframework.context.annotation.ComponentScan;
  */
 //@EnableCircuitBreaker
 @SpringBootApplication
-@ComponentScan(basePackages = {"org.openpaas.paasta.portal.storage.api"})
 public class StorageApiApplication {
     /**
      * Storage API entry point.
