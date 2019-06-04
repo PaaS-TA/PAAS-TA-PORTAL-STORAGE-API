@@ -25,13 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -54,6 +48,7 @@ public class SwiftOSController {
      * Put object into Object Storage (upload, POST)
      * @throws IOException 
      */
+    @CrossOrigin
     @PostMapping( value = { SwiftOSControllerURI.OBJECT_INSERT_URIS_A, SwiftOSControllerURI.OBJECT_INSERT_URIS_B } )
     public Object uploadObject(
         @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
@@ -75,6 +70,7 @@ public class SwiftOSController {
      * Get object in object storage (get, GET)
      * @throws FileNotFoundException 
      */
+    @CrossOrigin
     @GetMapping( SwiftOSControllerURI.OBJECT_GET_RAW_URI )
     public Object getObjectRawURL( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name ) throws FileNotFoundException {
@@ -92,6 +88,7 @@ public class SwiftOSController {
      * Get content type of object in object storage (GET)
      * @throws FileNotFoundException
      */
+    @CrossOrigin
     @GetMapping( SwiftOSControllerURI.OBJECT_GET_CONTENT_TYPE_URI )
     public Object getObjectContentType( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name) throws FileNotFoundException {
@@ -103,7 +100,7 @@ public class SwiftOSController {
         
         return createResponseEntity( fileInfo.getFileType(), null, HttpStatus.CREATED );
     }
-    
+    @CrossOrigin
     @GetMapping( SwiftOSControllerURI.OBJECT_GET_RESOURCE_URI )
     public Object getObjectDownload( 
         @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response )
@@ -143,6 +140,7 @@ public class SwiftOSController {
     /**
      * Update object in object storage (update, PUT)
      */
+    @CrossOrigin
     @PutMapping( SwiftOSControllerURI.OBJECT_MODIFY_URI )
     public Object updateObject( String filename, StoredObject object ) {
         throw new UnsupportedOperationException("Updating object doesn't support yet.");
@@ -152,6 +150,7 @@ public class SwiftOSController {
      * Remove object in object storage (remove/delete, DELETE)
      * @throws IOException 
      */
+    @CrossOrigin
     @DeleteMapping( SwiftOSControllerURI.OBJECT_DELETE_URI )
     public Object removeObject( @PathVariable( SwiftOSCommonParameter.OBJECT_FILENAME_PATH_VARIABLE ) String name, final HttpServletResponse response ) throws IOException {
         if (swiftOSService.removeObject( name )) {
@@ -160,7 +159,7 @@ public class SwiftOSController {
             return createResponseEntity( ResultStatus.FAIL, null, HttpStatus.CREATED );
         }
     }
-    
+    @CrossOrigin
     @GetMapping( SwiftOSControllerURI.OBJECT_LIST_URI )
     public String listFiles( ) {
         final StringBuffer buffer = new StringBuffer();
@@ -196,7 +195,7 @@ public class SwiftOSController {
         final ResponseEntity<T> resEntity = new ResponseEntity<>( object, headers, httpStatus );
         return resEntity;
     }
-
+    @CrossOrigin
     @GetMapping( "/v2/swift/upload-test/{local-file:.+}" )
     public Object uploadTestObject(@PathVariable("local-file") String localFilePath) throws IOException, URISyntaxException {
         //final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile )
