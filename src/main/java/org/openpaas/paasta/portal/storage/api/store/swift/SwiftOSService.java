@@ -37,8 +37,21 @@ public class SwiftOSService extends ObjectStorageService<SwiftOSFileInfo> {
     public SwiftOSFileInfo putObject(final MultipartFile multipartFile) throws IOException {
         Assert.notNull(multipartFile, "MultipartFile instance is empty : " + multipartFile);
 
-        return putObject(multipartFile.getOriginalFilename(), multipartFile.getInputStream(), multipartFile.getContentType());
+
+        return putObject(multipartFile.getOriginalFilename(), multipartFile.getInputStream(), convertContentType(multipartFile.getOriginalFilename(), multipartFile.getContentType()));
     }
+
+    public String convertContentType(String filename, String content_type) {
+        if (filename.indexOf("png") > -1) {
+            content_type = "image/png";
+        } else if (filename.indexOf("jpg") > -1) {
+            content_type = "image/jpg";
+        } else if (filename.indexOf("gif") > -1) {
+            content_type = "image/gif";
+        }
+        return content_type;
+    }
+
 
     //@HystrixCommand(commandKey = "putObject")
     public SwiftOSFileInfo putObject(final String filename, final InputStream contents, final String contentType) {

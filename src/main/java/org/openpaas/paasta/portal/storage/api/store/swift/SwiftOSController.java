@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.Consumes;
 
 import org.javaswift.joss.model.StoredObject;
 import org.openpaas.paasta.portal.storage.api.config.SwiftOSConstants.ResultStatus;
@@ -49,9 +50,11 @@ public class SwiftOSController {
      * @throws IOException 
      */
     @CrossOrigin
+    @Consumes(MediaType.MULTIPART_FORM_DATA_VALUE)
     @PostMapping( value = { SwiftOSControllerURI.OBJECT_INSERT_URIS_A, SwiftOSControllerURI.OBJECT_INSERT_URIS_B } )
     public Object uploadObject(
         @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
+
         final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile );
         if (null == fileInfo) {
             LOGGER.warn("Cannot find information for stored object in swift object storage. :: uploadObject");
@@ -122,7 +125,8 @@ public class SwiftOSController {
         // use SwiftOSFileInfo.getFilename() instead of name(stored filename)
         headers.add( "Content-Disposition", ( "attachment;filename=" + fileInfo.getFilename() ) );
         headers.add( "Content-Transfer-Encoding", "binary" );
-        
+
+
         // use SwiftOSFileInfo.getFileType() instead of StoredObject.getContentType()
         headers.add( "Content-Type", fileInfo.getFileType() );
 
