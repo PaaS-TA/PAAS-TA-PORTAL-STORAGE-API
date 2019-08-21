@@ -8,9 +8,9 @@ public class Test {
     public static void main(String[] args) {
         AccountConfig config = new AccountConfig();
 //        config.setTenantName("service");
-        config.setUsername("paasta-portal");
-        config.setPassword("paasta");
-        config.setAuthUrl("http://115.68.47.168:5000/v2.0/tokens");
+        config.setUsername("swift");
+        config.setPassword("password");
+        config.setAuthUrl("http://115.68.47.185:5000/v2.0/tokens");
         config.setAuthenticationMethod(AuthenticationMethod.KEYSTONE);
 //        config.setDomain("default");
         Account account = new AccountFactory(config).createAccount();
