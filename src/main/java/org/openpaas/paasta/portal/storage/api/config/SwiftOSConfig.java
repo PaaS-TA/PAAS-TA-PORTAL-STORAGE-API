@@ -45,15 +45,18 @@ public class SwiftOSConfig extends ObjectStorageConfig {
         final String preferredRegion = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_PREFERRED_REGION );
 
         AccountConfig accountConfig = new AccountConfig();
-        accountConfig.setTenantName(tenantName);
+//        accountConfig.setTenantName(tenantName);
         accountConfig.setUsername(username);
         accountConfig.setPassword(password);
         accountConfig.setAuthUrl(authUrl);
         accountConfig.setAuthenticationMethod(getAuthenticationMethod( authMethod ));
-        accountConfig.setPreferredRegion(preferredRegion);
+//        accountConfig.setPreferredRegion(preferredRegion);
 
-        LOGGER.debug( "Create account config for object storage : {}", accountConfig );
-        
+        LOGGER.info( "Create account config for object storage : {}", accountConfig.getUsername() );
+        LOGGER.info( "Create account config for object storage : {}", accountConfig.getPassword() );
+        LOGGER.info( "Create account config for object storage : {}", accountConfig.getAuthUrl() );
+        LOGGER.info( "Create account config for object storage : {}", accountConfig.getAuthenticationMethod() );
+
         return accountConfig;
     }
     

@@ -23,7 +23,9 @@ spring:
 server:
   port: ${PORT:2226}   # HTTP (Tomcat) port
 
-
+logging:
+  level:
+    ROOT: DEBUG
 #Hystrix Setting(current version not used)
 #hystrix:
 #  threadpool:
