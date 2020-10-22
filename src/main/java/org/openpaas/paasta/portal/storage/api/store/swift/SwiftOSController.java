@@ -8,7 +8,9 @@ import java.io.InputStream;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.servlet.http.HttpServletResponse;
@@ -22,6 +24,7 @@ import org.openpaas.paasta.portal.storage.api.util.ObjectMapperUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,6 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 public class SwiftOSController {
     private static final Logger LOGGER = LoggerFactory.getLogger( SwiftOSController.class );
     
+    @Value("${objectStorage.swift.user.app.size.mb}")
+    private long userAppSizeMb;
+
     @Autowired
     SwiftOSService swiftOSService;
     
@@ -53,7 +59,17 @@ public class SwiftOSController {
     @Consumes(MediaType.MULTIPART_FORM_DATA_VALUE)
     @PostMapping( value = { SwiftOSControllerURI.OBJECT_INSERT_URIS_A, SwiftOSControllerURI.OBJECT_INSERT_URIS_B } )
     public Object uploadObject(
-        @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile ) throws IOException {
+        @RequestParam( SwiftOSCommonParameter.OBJECT_INSERT_FILE ) MultipartFile multipartFile, @RequestParam(value = "isUserApp", defaultValue = "false") String isUserApp) throws IOException {
+
+        // 사용자 등록 앱 일 경우 사이즈 제한
+        if(Boolean.valueOf(isUserApp) && userAppSizeMb > 0) {
+            long maxFileSize = userAppSizeMb * 1024 * 1024;
+            if(multipartFile.getSize() > maxFileSize) {
+                Map<String, Object> responseMap = new HashMap<String, Object>();
+                responseMap.put("FILE_MAX_SIZE", userAppSizeMb);
+                return createResponseEntity(responseMap, null, HttpStatus.PAYLOAD_TOO_LARGE);
+            }
+        }
 
         final SwiftOSFileInfo fileInfo = swiftOSService.putObject( multipartFile );
         if (null == fileInfo) {

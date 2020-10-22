@@ -61,6 +61,10 @@ objectStorage:
     authMethod: keystone
     preferredRegion: Public
     container: portal-container
+    user:
+      app:
+        size:
+          mb: 0  # user app upload size : 0 (무제한)
 
 paasta:
   portal:
