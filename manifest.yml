@@ -1,0 +1,27 @@
+applications:
+- name: portal-storage-api
+  memory: 1G
+  instances: 1
+  buildpacks:
+  - java_buildpack
+  path: build/libs/paas-ta-portal-storage-api.jar
+  env:
+    server_port: 80
+
+    spring_application_name: PortalStorageApi
+
+    spring_security_username: admin
+    spring_security_password: openpaasta
+
+    eureka_client_serviceUrl_defaultZone: http://portal-registration.<DOMAIN>/eureka/
+    eureka_instance_hostname: ${vcap.application.uris[0]}
+    eureka_instance_nonSecurePort: 80
+
+    objectStorage_swift_tenantName: <OBJECTSTORAGE_TENANTNAME>
+    objectStorage_swift_username: <OBJECTSTORAGE_USERNAME>
+    objectStorage_swift_password: <OBJECTSTORAGE_PASSWORD>
+    objectStorage_swift_authUrl: http://<OBJECTSTORAGE_IP>:<OBJECTSTORAGE_PORT>/v2.0/tokens
+    objectStorage_swift_authMethod: <OBJECTSTORAGE_AUTHMETHOD>
+    objectStorage_swift_preferredRegion: <OBJECTSTORAGE_PREFERREDREGION>
+    objectStorage_swift_container: <OBJECTSTORAGE_CONTAINER>
+    objectStorage_swift_user_app_size_mb: 0         # user app upload size ( 0 : unlimited )

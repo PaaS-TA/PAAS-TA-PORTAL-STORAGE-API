@@ -22,8 +22,8 @@ Storage Api Service? Object Storage에 파일 업로드 및 다운로드를 제�
 
 
 ## 유의사항
-- Java 1.8 버전
+- Java 1.8 
 - Spring Cloud Edgware.RELEASE 
 - Tomcat Embedded 8.5.14
-- Gradle 4.4.1
-- Spring-boot 1.5.9
+- Gradle 4.10.3
+- Spring-boot 1.5.10

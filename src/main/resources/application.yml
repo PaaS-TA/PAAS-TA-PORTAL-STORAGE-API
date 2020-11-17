@@ -18,14 +18,50 @@ spring:
       max-request-size: ${spring.http.multipart.max-request-size}
       location: ${spring.http.multipart.location}
 
-
 # HTTP Server
 server:
   port: ${PORT:2226}   # HTTP (Tomcat) port
 
-logging:
-  level:
-    ROOT: DEBUG
+management:     # If you set off security...
+  security:
+    enabled: false
+
+# Discovery Server Access
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://<PORTAL_REGISTRATION_IP>:<PORTAL_REGISTRATION_PORT>/eureka/ # YOUR EUREKA SERVER API URL
+      registry-fetch-interval-seconds: 5
+  instance:
+    hostname: ${spring.cloud.client.hostname}
+    lease-expiration-duration-in-seconds: 5
+    lease-renewal-interval-in-seconds: 10
+
+objectStorage:
+  swift:
+    tenantName: <OBJECTSTORAGE_TENANTNAME>
+    username: <OBJECTSTORAGE_USERNAME>
+    password: <OBJECTSTORAGE_PASSWORD>
+    authUrl: http://<OBJECTSTORAGE_IP>:<OBJECTSTORAGE_PORT>/v2.0/tokens
+    authMethod: <OBJECTSTORAGE_AUTHMETHOD>
+    preferredRegion: <OBJECTSTORAGE_PREFERREDREGION>
+    container: <OBJECTSTORAGE_CONTAINER>
+    user:
+      app:
+        size:
+          mb: 0           # user app upload size ( 0 : unlimited )
+
+paasta:
+  portal:
+    storage:
+      api:
+        common:
+          countoflastestexception: 10
+
+#logging:
+#  level:
+#    ROOT: DEBUG
+
 #Hystrix Setting(current version not used)
 #hystrix:
 #  threadpool:
@@ -48,48 +84,3 @@ logging:
 #          thread:
 #            timeoutInMilliseconds: 60000
 #
----
-spring:
-  profiles: local
-
-objectStorage:
-  swift:
-    tenantName: paasta-portal
-    username: paasta-portal # YOUR OBJECT STORAGE ACCOUNT
-    password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
-    authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0/tokens  #YOUR OBJECT STORAGE API URL
-    authMethod: keystone
-    preferredRegion: Public
-    container: portal-container
-    user:
-      app:
-        size:
-          mb: 0  # user app upload size : 0 (무제한)
-
-paasta:
-  portal:
-    storage:
-      api:
-        common:
-          countoflastestexception: 10
-
----
-spring:
-  profiles: dev
-
-objectStorage:
-  swift:
-    tenantName: paasta-portal
-    username: paasta-portal  # YOUR OBJECT STORAGE ACCOUNT
-    password: 'PASSWORD' # YOUR OBJECT STORAGE PASSWORD
-    authUrl: http://XXX.XXX.XXX.XXX:5000/v2.0/tokens  #YOUR OBJECT STORAGE API URL
-    authMethod: keystone
-    preferredRegion: Public
-    container: portal-container
-
-paasta:
-  portal:
-    storage:
-      api:
-        common:
-          countoflastestexception: 10
