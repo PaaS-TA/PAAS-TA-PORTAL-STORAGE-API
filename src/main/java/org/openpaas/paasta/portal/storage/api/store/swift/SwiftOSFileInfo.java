@@ -29,8 +29,13 @@ public class SwiftOSFileInfo extends ObjectStorageFileInfo<SwiftOSFileInfo> {
         String originalFilename;
         if (null != metaOriginalFilename ) {
             originalFilename = (String) metaOriginalFilename;
+            /*
             if ( null == originalFilename
                 || ( null != originalFilename && "".equals( originalFilename ) ) ) {
+                originalFilename = storedObj.getName().substring( 0, storedObj.getName().indexOf( '-' ) );
+            }
+            */
+            if ("".equals( originalFilename )){
                 originalFilename = storedObj.getName().substring( 0, storedObj.getName().indexOf( '-' ) );
             }
         } else {
@@ -40,11 +45,22 @@ public class SwiftOSFileInfo extends ObjectStorageFileInfo<SwiftOSFileInfo> {
         
         // set upload timestamp
         final Object timestamp = storedObj.getMetadata( SwiftOSCommonParameter.OBJECT_UPLOAD_TIMESTAMP );
+        /*
         if (null == timestamp || (null != timestamp && "".equals( timestamp )))
             info.setUploadTimestamp( 0L );
         else 
             info.setUploadTimestamp( Long.parseLong( timestamp.toString() ) );
-        
+        */
+        if (null == timestamp){
+            info.setUploadTimestamp( 0L );
+        }else{
+            if("".equals( timestamp )){
+                info.setUploadTimestamp( 0L );
+            }else{
+                info.setUploadTimestamp( Long.parseLong( timestamp.toString() ) );
+            }
+        }
+
         // set content type
         final Object contentType = storedObj.getMetadata( SwiftOSCommonParameter.OBJECT_CONTENT_TYPE );
         if (null == contentType)

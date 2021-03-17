@@ -1,5 +1,6 @@
 package org.openpaas.paasta.portal.storage.api.util;
 
+import java.nio.charset.Charset;
 import java.util.UUID;
 
 import org.springframework.util.Assert;
@@ -19,8 +20,8 @@ public class FilenameUtils {
         // example : 081e756fd63f4648b077a42cc4acf88e-151800101-site_logo.png
         final StringBuffer buffer = new StringBuffer();
         final String uuidStr = UUID.randomUUID().toString().replaceAll( "-", "" );
-        final String encodeFilename = Base64Utils.encodeToUrlSafeString( filename.getBytes() );
-        
+        final String encodeFilename = Base64Utils.encodeToUrlSafeString( filename.getBytes(Charset.forName("UTF-8")) );
+
         buffer.append( uuidStr ).append( '-' )
             .append( timestamp ).append( '-' )
             .append( encodeFilename );
@@ -66,14 +67,14 @@ public class FilenameUtils {
     
     public static final String getOriginalFilename( final String storedFilename ) {
         final String encodeFilename = getEncodeOriginalFilename(storedFilename);
-        return new String( Base64Utils.decodeFromUrlSafeString( encodeFilename ) );
+        return new String( Base64Utils.decodeFromUrlSafeString( encodeFilename ), Charset.forName("UTF-8") );
     }
     
     public static final String encodeFilename( final String filename ) {
-        return Base64Utils.encodeToUrlSafeString( filename.getBytes() );
+        return Base64Utils.encodeToUrlSafeString( filename.getBytes(Charset.forName("UTF-8")) );
     }
     
     public static final String decodeFilename( final String encodeFilename ) {
-        return new String( Base64Utils.decodeFromUrlSafeString( encodeFilename ) );
+        return new String( Base64Utils.decodeFromUrlSafeString( encodeFilename ), Charset.forName("UTF-8") );
     }
 }

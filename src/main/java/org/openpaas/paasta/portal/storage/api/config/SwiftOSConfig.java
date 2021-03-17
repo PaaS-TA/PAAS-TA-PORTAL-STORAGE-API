@@ -37,12 +37,12 @@ public class SwiftOSConfig extends ObjectStorageConfig {
      */
     @Bean
     public AccountConfig accountConfig(){
-        final String tenantName = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_TENANT_NAME);
+        //final String tenantName = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_TENANT_NAME);
         final String username = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_USER_NAME);
         final String password = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_PASSWORD);
         final String authUrl = env.getRequiredProperty(SwiftOSEnvironmentKeys.OBJECT_STORAGE_AUTH_URL);
         final String authMethod = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_AUTH_METHOD );
-        final String preferredRegion = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_PREFERRED_REGION );
+        //final String preferredRegion = env.getRequiredProperty( SwiftOSEnvironmentKeys.OBJECT_STORAGE_PREFERRED_REGION );
 
         AccountConfig accountConfig = new AccountConfig();
 //        accountConfig.setTenantName(tenantName);

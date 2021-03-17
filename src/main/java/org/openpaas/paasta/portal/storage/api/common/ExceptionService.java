@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class ExceptionService {
-    protected static Logger logger = LoggerFactory.getLogger( ExceptionService.class );
+    protected static final Logger logger = LoggerFactory.getLogger( ExceptionService.class );
 
     public static enum Level {
         TRACE, DEBUG, INFO, WARN, ERROR

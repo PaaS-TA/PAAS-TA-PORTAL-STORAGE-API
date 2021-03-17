@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Collection;
 
 import static org.junit.Assert.assertEquals;
@@ -30,7 +31,7 @@ public class SwiftOSServiceTest  {
     private static final String multipartTempFilename = "tmp-multipart-abcdef-test-1234.txt";
     private static final String filename = "test-1234.txt";
     private static final String contentType = MediaType.TEXT_PLAIN_VALUE;
-    private static final byte[] contents = "Hello object storage".getBytes();
+    private static final byte[] contents = "Hello object storage".getBytes(Charset.forName("UTF-8"));
     
     @Mock private AccountMock account; 
     @Mock private ContainerMock container;

@@ -91,7 +91,7 @@ public class ExceptionController {
     }
     
     private static class ExceptionInfo {
-        private static final SimpleDateFormat defaultDateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss", Locale.KOREA );
+        private final SimpleDateFormat defaultDateFormat = new SimpleDateFormat( "yyyy-MM-dd HH:mm:ss", Locale.KOREA );
         
         public final Throwable exception;
         public final String timestampString;

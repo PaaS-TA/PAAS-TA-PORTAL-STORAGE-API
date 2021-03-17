@@ -6,12 +6,16 @@ import org.springframework.context.ApplicationContextAware;
  
 public class ApplicationContextProvider implements ApplicationContextAware {
     private static ApplicationContext ctx = null;
- 
+
     public static ApplicationContext getApplicationContext() {
         return ctx;
     }
- 
-    public void setApplicationContext(ApplicationContext extContext) throws BeansException {
+
+    public synchronized static void setApplicationContextRefactor(ApplicationContext extContext) throws BeansException{
         ctx = extContext;
+    }
+
+    public void setApplicationContext(ApplicationContext extContext) throws BeansException {
+        setApplicationContextRefactor(extContext);
     }
 }
