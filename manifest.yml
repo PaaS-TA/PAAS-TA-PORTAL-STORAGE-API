@@ -20,7 +20,7 @@ applications:
     objectStorage_swift_tenantName: <OBJECTSTORAGE_TENANTNAME>
     objectStorage_swift_username: <OBJECTSTORAGE_USERNAME>
     objectStorage_swift_password: <OBJECTSTORAGE_PASSWORD>
-    objectStorage_swift_authUrl: http://<OBJECTSTORAGE_IP>:<OBJECTSTORAGE_PORT>/v2.0/tokens
+    objectStorage_swift_authUrl: http://<OBJECTSTORAGE_IP>:<OBJECTSTORAGE_PORT>/v3/auth/tokens
     objectStorage_swift_authMethod: <OBJECTSTORAGE_AUTHMETHOD>
     objectStorage_swift_preferredRegion: <OBJECTSTORAGE_PREFERREDREGION>
     objectStorage_swift_container: <OBJECTSTORAGE_CONTAINER>
